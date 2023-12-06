@@ -25,7 +25,7 @@ clear all
 close all
 clc
 
-load('data.mat')
+load('Data/data.mat')
 dur= [10 12 12 10 12 12]*60; % s
 paretic_side= {'L' 'R' 'L' 'R' 'L' 'R'}';
 muscle_number= [4 10 10 10 10 10];
@@ -287,8 +287,8 @@ for k= 1:3
     for j= 1:6
         for i= 1:L(j,k)
             l_gc= height(data_gc{j,k}{i});
-            par.left_stance{j,k}(i,1)= length(find(data_gc{j,k}{i}.lcontact==1))/l_gc;
-            par.right_stance{j,k}(i,1)= length(find(data_gc{j,k}{i}.rcontact==1))/l_gc;
+            par.left_stance{j,k}(i,1)= length(find(data_gc{j,k}{i}.lcontact==1))/l_gc*100;
+            par.right_stance{j,k}(i,1)= length(find(data_gc{j,k}{i}.rcontact==1))/l_gc*100;
             par.stance_diff{j,k}(i,1)= par.left_stance{j,k}(i)-par.right_stance{j,k}(i);
         end
     end
@@ -304,6 +304,33 @@ for k= 1:3
             temp= find(data_gc{j,k}{i}.lcontact == 1); % left stance
             par.left_ga{j,k}(i,1)= max(data_gc{j,k}{i}.lga(temp));
             par.left_force{j,k}(i,1)= mean(data_gc{j,k}{i}.force_left(temp));
+        end
+    end
+end
+
+% Muscle Acitivity
+for k= 1:3
+    for j= 1:6
+        for i= 1:L(j,k)
+            par.left_ta{j,k}(i,1)= mean(data_gc{j,k}{i}.lta);
+            par.left_ga{j,k}(i,1)= mean(data_gc{j,k}{i}.lga);
+            par.right_ta{j,k}(i,1)= mean(data_gc{j,k}{i}.rta);
+            par.right_ga{j,k}(i,1)= mean(data_gc{j,k}{i}.rga);
+            if ismember(j,[2 3 4 5 6])
+                par.left_va{j,k}(i,1)= mean(data_gc{j,k}{i}.lva);
+                par.left_rf{j,k}(i,1)= mean(data_gc{j,k}{i}.lrf);
+                par.left_bf{j,k}(i,1)= mean(data_gc{j,k}{i}.lbf);
+                par.right_va{j,k}(i,1)= mean(data_gc{j,k}{i}.rva);
+                par.right_rf{j,k}(i,1)= mean(data_gc{j,k}{i}.rrf);
+                par.right_bf{j,k}(i,1)= mean(data_gc{j,k}{i}.rbf);
+            else
+                par.left_va{j,k}(i,1)= nan;
+                par.left_rf{j,k}(i,1)= nan;
+                par.left_bf{j,k}(i,1)= nan;
+                par.right_va{j,k}(i,1)= nan;
+                par.right_rf{j,k}(i,1)= nan;
+                par.right_bf{j,k}(i,1)= nan;
+            end
         end
     end
 end
@@ -403,7 +430,20 @@ for j= 1:6
     par.cop_path{j,5}= [mean(cop.x5,2) mean(cop.y5,2)];
     par.cop_path{j,5}= [par.cop_path{j,5};par.cop_path{j,5}(1,:)];
 end
-
+return
+%% CoP Metrics
+for k= 1:5
+    for j= 1:6
+        tempx= par.cop_path{j,k}(:,1);
+        tempy= par.cop_path{j,k}(:,2);
+        inter= InterX([tempx(1:50)'; tempy(1:50)'],[tempx(51:101)'; tempy(51:101)']);
+        x_mean= mean([min(tempx) max(tempx)]);
+        [~,ind]= min(abs(x_mean-(inter(1,:))));
+        temp= inter(:,ind)';
+        par.cop_cross{j,k}= temp;
+        par.cop_cross_to_center(j,k)= hypot(temp(1),temp(2));
+    end
+end
 
 %% Last Thing Before Plots
 return
@@ -415,7 +455,7 @@ clc
 % Setup Plot
 j= 1; % Subject Number
 figure; set(gcf,'color','w','Position',[1 74 1440 723]); hold on;
-subplot(4,4,1); hold on;
+subplot(3,4,1); hold on;
 if paretic_side{j} == 'L'
     main_title= sgtitle(['Subject ' num2str(j)  ' | \color[rgb]{0 .4471 .7647}Left Side Paretic \color{black}| ' '\color[rgb]{.8 .2078 .1451}Right Side Perturbed \color{black}| '  num2str(dur(j)/60) ' minutes | ' num2str(TS(j)) ' m/s']);
 else
@@ -534,6 +574,102 @@ right_data_input= par.right_knee_velo(j,:);
 ylabel_input= 'Angular Velocity (deg/s)';
 plot_number_input= 16;
 normal_plot(left_data_input,right_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
+%% BoxPlot
+close all
+clc
+
+% Setup Plot
+j= 6; % Subject Number
+figure; set(gcf,'color','w','Position',[1 74 1440 723]); hold on;
+subplot(3,4,1); hold on;
+if paretic_side{j} == 'L'
+    main_title= sgtitle(['Subject ' num2str(j)  ' | \color[rgb]{0 .4471 .7647}Left Side Paretic \color{black}| ' '\color[rgb]{.8 .2078 .1451}Right Side Perturbed \color{black}| '  num2str(dur(j)/60) ' minutes | ' num2str(TS(j)) ' m/s']);
+else
+    main_title= sgtitle(['Subject ' num2str(j)  ' | \color[rgb]{.8 .2078 .1451}Right Side Paretic \color{black}| ' '\color[rgb]{0 .4471 .7647}Left Side Perturbed \color{black}| '  num2str(dur(j)/60) ' minutes | ' num2str(TS(j)) ' m/s']);
+end
+set(main_title,'FontWeight','bold','FontSize',22);
+
+title_input= 'Frozen Step Length';
+left_data_input= par.left_step_length(j,:);
+right_data_input= par.right_step_length(j,:);
+ylabel_input= 'Ankle to Ankle (mm)';
+plot_number_input= 1;
+box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'Anterior Step Length';
+left_data_input= par.left_anterior(j,:);
+right_data_input= par.right_anterior(j,:);
+ylabel_input= 'CoM to Ankle (mm)';
+plot_number_input= 2;
+box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'Stance Time';
+left_data_input= par.left_stance(j,:);
+right_data_input= par.right_stance(j,:);
+ylabel_input= '% Gait Cycle';
+plot_number_input= 3;
+box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'Stance Force';
+left_data_input= par.left_force(j,:);
+right_data_input= par.right_force(j,:);
+ylabel_input= 'Avg Force (units)';
+plot_number_input= 4;
+box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'Average TA Activation';
+left_data_input= par.left_ta(j,:);
+right_data_input= par.right_ta(j,:);
+ylabel_input= 'Activation Level (%)';
+plot_number_input= 5;
+box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'Average GA Activation';
+left_data_input= par.left_ga(j,:);
+right_data_input= par.right_ga(j,:);
+ylabel_input= 'Activation Level (%)';
+plot_number_input= 6;
+box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'Average VA Activation';
+left_data_input= par.left_va(j,:);
+right_data_input= par.right_va(j,:);
+ylabel_input= 'Activation Level (%)';
+plot_number_input= 7;
+box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'Average RF Activation';
+left_data_input= par.left_rf(j,:);
+right_data_input= par.right_rf(j,:);
+ylabel_input= 'Activation Level (%)';
+plot_number_input= 8;
+box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'Average BF Activation';
+left_data_input= par.left_bf(j,:);
+right_data_input= par.right_bf(j,:);
+ylabel_input= 'Activation Level (%)';
+plot_number_input= 9;
+box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'TA Activation during Swing';
+left_data_input= par.left_ta_activation(j,:);
+right_data_input= par.right_ta_activation(j,:);
+ylabel_input= 'Activation Level (%)';
+plot_number_input= 10;
+box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'GA Activation at Push Off';
+left_data_input= par.left_ga(j,:);
+right_data_input= par.right_ga(j,:);
+ylabel_input= 'Activation Level (%)';
+plot_number_input= 11;
+box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'Center of Pressure';
+data_input= par.cop_path(j,:);
+plot_number_input= 12;
+cop_plot(data_input,title_input,plot_number_input)
 
 %% CoP Path
 close all
@@ -567,6 +703,61 @@ figure;
 % plot(cop_com(:,1),cop_com(:,2))
 plot(movmean(cop_com(:,1),20),movmean(cop_com(:,2),20))
 %% Functions
+function box_whisker_plot(left_data,right_data,plot_title,plot_ylabel,subplot_number)
+% box_whisker_plot(left_data,right_data,plot_title,plot_ylabel,subplot_number)
+blue= [0,114/255,195/255,1];
+red= [204/255,53/255,37/255,1];
+bluet= [0,114/255,195/255,.1];
+redt= [204/255,53/255,37/255,.1];
+bluem= [0,114/255,195/255];
+redm= [204/255,53/255,37/255];
+purple= [163/255 41/255 214/255 1];
+purplet= [163/255 41/255 214/255 .1];
+purplem= [163/255 41/255 214/255];
+SPAN= 30;
+ 
+box_data(:,1)= left_data{1}(end-SPAN+1:end);
+box_data(:,2)= right_data{1}(end-SPAN+1:end);
+box_data(1:SPAN,3)= nan; 
+box_data(:,4)= left_data{2}(1:SPAN); 
+box_data(:,5)= right_data{2}(1:SPAN); 
+box_data(1:SPAN,6)= nan; 
+box_data(:,7)= left_data{2}(end-SPAN+1:end);
+box_data(:,8)= right_data{2}(end-SPAN+1:end);
+box_data(1:SPAN,9)= nan; 
+box_data(:,10)= left_data{3}(1:SPAN);
+box_data(:,11)= right_data{3}(1:SPAN);
+box_data(1:SPAN,12)= nan; 
+box_data(:,13)= left_data{3}(end-SPAN+1:end);
+box_data(:,14)= right_data{3}(end-SPAN+1:end);
+
+for i= 1:14
+    if ismember(i,[1 4 7 10 13])
+        colors(i,:) = red(1:3);
+    elseif ismember(i,[2 5 8 11 14])
+        colors(i,:) = blue(1:3);
+    end
+end
+
+subplot(3,4,subplot_number); hold on;
+boxplot(box_data)
+set(findobj(gca,'type','line'),'linew',1)
+set(findobj(gca,'type','line'),'color','k');
+% set(findobj(gcf,'tag','Outliers'),'MarkerSize',25);
+h = findobj(gca,'Tag','Box');
+h1= findobj(gca,'Tag','Outliers');
+for j=1:length(h)
+    patch(get(h(j),'XData'),get(h(j),'YData'),colors(j,:),'FaceAlpha',.5);
+end
+set(h1,'MarkerEdgeColor','k');
+plot([3 3],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+plot([9 9],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+xticks([])
+title(plot_title)
+ylabel(plot_ylabel)
+
+end
+
 function cop_plot(only_data,plot_title,subplot_number)
 % normal_plot(left_data,right_data,transitions,title,ylabel,subplot_number)
 blue= [0,114/255,195/255,1];
@@ -604,7 +795,7 @@ par5yf= smooth(par5y,SPAN,'rloess');
 
 colororder('default');
 
-subplot(4,4,subplot_number); hold on;
+subplot(3,4,subplot_number); hold on;
 % plot(par1xf,par1yf,'LineWidth',2)
 % plot(par2xf,par2yf,'LineWidth',2)
 % plot(par3xf,par3yf,'LineWidth',2)
@@ -616,6 +807,9 @@ plot(par3x,par3y,'LineWidth',2)
 plot(par4x,par4y,'LineWidth',2)
 plot(par5x,par5y,'LineWidth',2)
 axis equal
+axis manual
+plot([-1000 1000],[0 0],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+plot([0 0],[-1000 1000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
 legend('Baseline','Early Adapt','Late Adapt','Early Obs','Late Obs')
 title(plot_title)
 end
@@ -642,7 +836,7 @@ par3f= smooth(par3,SPAN,'rloess');
 parf= [par1f; par2f; par3f];
 par= [par1; par2; par3];
 
-subplot(4,4,subplot_number); hold on;
+subplot(3,4,subplot_number); hold on;
 plot(1:length(parf),parf,'LineWidth',2,'color',purple,'HandleVisibility','off')
 a= axis;
 axis([0 x_limit a(3) a(4)])
@@ -700,7 +894,7 @@ parD= [par1D; par2D; par3D];
 colororder([0 0 0;
             purple(1:3)]) % axis colors
 
-subplot(4,4,subplot_number); hold on;
+subplot(3,4,subplot_number); hold on;
 yyaxis left
 hold on
 plot(1:length(parLf),parLf,'LineWidth',2,'LineStyle','-','color',blue,'Marker','none','HandleVisibility','off')
@@ -764,7 +958,7 @@ parRf= [par1Rf; par2Rf; par3Rf];
 parR= [par1R; par2R; par3R];
 
 
-subplot(4,4,subplot_number); hold on;
+subplot(3,4,subplot_number); hold on;
 plot(1:length(parLf),parLf,'LineWidth',2,'color',blue,'HandleVisibility','off')
 plot(1:length(parRf),parRf,'LineWidth',2,'color',red,'HandleVisibility','off')
 a= axis;
@@ -782,4 +976,83 @@ if ismember(subplot_number,[13 14 15 16])
     xlabel('Gait Cycle Number')
 end
 ylabel(plot_ylabel)
+end
+
+function P = InterX(L1,varargin)
+%INTERX Intersection of curves
+%   P = INTERX(L1,L2) returns the intersection points of two curves L1 
+%   and L2. The curves L1,L2 can be either closed or open and are described
+%   by two-row-matrices, where each row contains its x- and y- coordinates.
+%   The intersection of groups of curves (e.g. contour lines, multiply 
+%   connected regions etc) can also be computed by separating them with a
+%   column of NaNs as for example
+%
+%         L  = [x11 x12 x13 ... NaN x21 x22 x23 ...;
+%               y11 y12 y13 ... NaN y21 y22 y23 ...]
+%
+%   P has the same structure as L1 and L2, and its rows correspond to the
+%   x- and y- coordinates of the intersection points of L1 and L2. If no
+%   intersections are found, the returned P is empty.
+%
+%   P = INTERX(L1) returns the self-intersection points of L1. To keep
+%   the code simple, the points at which the curve is tangent to itself are
+%   not included. P = INTERX(L1,L1) returns all the points of the curve 
+%   together with any self-intersection points.
+%   
+%   Example:
+%       t = linspace(0,2*pi);
+%       r1 = sin(4*t)+2;  x1 = r1.*cos(t); y1 = r1.*sin(t);
+%       r2 = sin(8*t)+2;  x2 = r2.*cos(t); y2 = r2.*sin(t);
+%       P = InterX([x1;y1],[x2;y2]);
+%       plot(x1,y1,x2,y2,P(1,:),P(2,:),'ro')
+%   Author : NS
+%   Version: 3.0, 21 Sept. 2010
+%   Two words about the algorithm: Most of the code is self-explanatory.
+%   The only trick lies in the calculation of C1 and C2. To be brief, this
+%   is essentially the two-dimensional analog of the condition that needs
+%   to be satisfied by a function F(x) that has a zero in the interval
+%   [a,b], namely
+%           F(a)*F(b) <= 0
+%   C1 and C2 exactly do this for each segment of curves 1 and 2
+%   respectively. If this condition is satisfied simultaneously for two
+%   segments then we know that they will cross at some point. 
+%   Each factor of the 'C' arrays is essentially a matrix containing 
+%   the numerators of the signed distances between points of one curve
+%   and line segments of the other.
+    %...Argument checks and assignment of L2
+    error(nargchk(1,2,nargin));
+    if nargin == 1,
+        L2 = L1;    hF = @lt;   %...Avoid the inclusion of common points
+    else
+        L2 = varargin{1}; hF = @le;
+    end
+       
+    %...Preliminary stuff
+    x1  = L1(1,:)';  x2 = L2(1,:);
+    y1  = L1(2,:)';  y2 = L2(2,:);
+    dx1 = diff(x1); dy1 = diff(y1);
+    dx2 = diff(x2); dy2 = diff(y2);
+    
+    %...Determine 'signed distances'   
+    S1 = dx1.*y1(1:end-1) - dy1.*x1(1:end-1);
+    S2 = dx2.*y2(1:end-1) - dy2.*x2(1:end-1);
+    
+    C1 = feval(hF,D(bsxfun(@times,dx1,y2)-bsxfun(@times,dy1,x2),S1),0);
+    C2 = feval(hF,D((bsxfun(@times,y1,dx2)-bsxfun(@times,x1,dy2))',S2'),0)';
+    %...Obtain the segments where an intersection is expected
+    [i,j] = find(C1 & C2); 
+    if isempty(i),P = zeros(2,0);return; end;
+    
+    %...Transpose and prepare for output
+    i=i'; dx2=dx2'; dy2=dy2'; S2 = S2';
+    L = dy2(j).*dx1(i) - dy1(i).*dx2(j);
+    i = i(L~=0); j=j(L~=0); L=L(L~=0);  %...Avoid divisions by 0
+    
+    %...Solve system of eqs to get the common points
+    P = unique([dx2(j).*S1(i) - dx1(i).*S2(j), ...
+                dy2(j).*S1(i) - dy1(i).*S2(j)]./[L L],'rows')';
+              
+    function u = D(x,y)
+        u = bsxfun(@minus,x(:,1:end-1),y).*bsxfun(@minus,x(:,2:end),y);
+    end
 end

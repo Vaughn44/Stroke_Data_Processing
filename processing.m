@@ -580,7 +580,7 @@ clc
 
 % Setup Plot
 j= 6; % Subject Number
-figure; set(gcf,'color','w','Position',[1 74 1440 723]); hold on;
+figure; set(gcf,'color','w','Position',[-1452 86 1440 723]); hold on;
 subplot(3,4,1); hold on;
 if paretic_side{j} == 'L'
     main_title= sgtitle(['Subject ' num2str(j)  ' | \color[rgb]{0 .4471 .7647}Left Side Paretic \color{black}| ' '\color[rgb]{.8 .2078 .1451}Right Side Perturbed \color{black}| '  num2str(dur(j)/60) ' minutes | ' num2str(TS(j)) ' m/s']);
@@ -604,11 +604,10 @@ plot_number_input= 2;
 box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
 
 title_input= 'Stance Time';
-left_data_input= par.left_stance(j,:);
-right_data_input= par.right_stance(j,:);
+only_data_input= par.stance_diff(j,:);
 ylabel_input= '% Gait Cycle';
 plot_number_input= 3;
-box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
+single_box_whisker_plot(only_data_input,title_input,ylabel_input,plot_number_input)
 
 title_input= 'Stance Force';
 left_data_input= par.left_force(j,:);
@@ -703,6 +702,51 @@ figure;
 % plot(cop_com(:,1),cop_com(:,2))
 plot(movmean(cop_com(:,1),20),movmean(cop_com(:,2),20))
 %% Functions
+function single_box_whisker_plot(only_data,plot_title,plot_ylabel,subplot_number)
+% box_whisker_plot(left_data,right_data,plot_title,plot_ylabel,subplot_number)
+blue= [0,114/255,195/255,1];
+red= [204/255,53/255,37/255,1];
+bluet= [0,114/255,195/255,.1];
+redt= [204/255,53/255,37/255,.1];
+bluem= [0,114/255,195/255];
+redm= [204/255,53/255,37/255];
+purple= [163/255 41/255 214/255 1];
+purplet= [163/255 41/255 214/255 .1];
+purplem= [163/255 41/255 214/255];
+SPAN= 30;
+ 
+box_data(:,1)= only_data{1}(end-SPAN+1:end);
+box_data(1:SPAN,2)= nan; 
+box_data(:,3)= only_data{2}(1:SPAN); 
+box_data(1:SPAN,4)= nan; 
+box_data(:,5)= only_data{2}(end-SPAN+1:end);
+box_data(1:SPAN,6)= nan; 
+box_data(:,7)= only_data{3}(1:SPAN);
+box_data(1:SPAN,8)= nan; 
+box_data(:,9)= only_data{3}(end-SPAN+1:end);
+ 
+colors = purple(1:3);
+
+subplot(3,4,subplot_number); hold on;
+plot([-100 100],[0 0],'LineWidth',1,'LineStyle','--','color',[.3 .3 .3],'HandleVisibility','off')
+boxplot(box_data)
+set(findobj(gca,'type','line'),'linew',1)
+set(findobj(gca,'type','line'),'color','k');
+% set(findobj(gcf,'tag','Outliers'),'MarkerSize',25);
+h = findobj(gca,'Tag','Box');
+h1= findobj(gca,'Tag','Outliers');
+for j=1:length(h)
+    patch(get(h(j),'XData'),get(h(j),'YData'),colors,'FaceAlpha',.5);
+end
+set(h1,'MarkerEdgeColor','k');
+plot([2 2],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+plot([6 6],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+
+xticks([])
+title(plot_title)
+ylabel(plot_ylabel)
+end
+
 function box_whisker_plot(left_data,right_data,plot_title,plot_ylabel,subplot_number)
 % box_whisker_plot(left_data,right_data,plot_title,plot_ylabel,subplot_number)
 blue= [0,114/255,195/255,1];
@@ -810,7 +854,7 @@ axis equal
 axis manual
 plot([-1000 1000],[0 0],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
 plot([0 0],[-1000 1000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
-legend('Baseline','Early Adapt','Late Adapt','Early Obs','Late Obs')
+legend('Baseline','Early Adapt','Late Adapt','Early Obs','Late Obs','Position',[0.89855 0.23461 0.076389 0.11203])
 title(plot_title)
 end
 

@@ -226,8 +226,9 @@ else
     return
 end
 %% Process Forcemats (add gap) & Add to data
-% Upsample Forcemats
-temp= fm_data{:,5:end};
+% Calibrate & Upsample Forcemats
+c= 0.1729; % scales forcemats to N 
+temp= fm_data{:,5:end}.*c;
 fm_data_upsampled= interp1(1:length(temp),temp,linspace(1,length(temp),frame_total));
 
 for i= 1:frame_total

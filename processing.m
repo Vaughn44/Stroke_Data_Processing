@@ -77,6 +77,52 @@ for j= 1:6
     data{j}.('rhip_rx')= rhip_redo;
     clear lhip_redo rhip_redo
 end
+%% Knee Angles Redo
+for j= 1:6
+    for i= 1:height(data{j})
+        hip= [data{j}.('lhip_y')(i) data{j}.('lhip_z')(i)];
+        knee= [data{j}.('lkne_y')(i) data{j}.('lkne_z')(i)];
+        ankle= [data{j}.('lank_y')(i) data{j}.('lank_z')(i)];
+        h2k= hip-knee;
+        k2a= knee-ankle;
+        temp1= atan2d(k2a(1),k2a(2));
+        temp2= atan2d(h2k(1),h2k(2));
+        lknee_redo(i,1)= temp1-temp2;
+
+        hip= [data{j}.('rhip_y')(i) data{j}.('rhip_z')(i)];
+        knee= [data{j}.('rkne_y')(i) data{j}.('rkne_z')(i)];
+        ankle= [data{j}.('rank_y')(i) data{j}.('rank_z')(i)];
+        h2k= hip-knee;
+        k2a= knee-ankle;
+        temp1= atan2d(k2a(1),k2a(2));
+        temp2= atan2d(h2k(1),h2k(2));
+        rknee_redo(i,1)= temp1-temp2;
+    end
+end
+%% Ankle Angles Redo
+for j= 1:6
+    for i= 1:height(data{j})
+        knee= [data{j}.('lkne_y')(i) data{j}.('lkne_z')(i)];
+        ankle= [data{j}.('lank_y')(i) data{j}.('lank_z')(i)];
+        heel= [data{j}.('lhee_y')(i) data{j}.('lhee_z')(i)];
+        toe= [data{j}.('ltoe_y')(i) data{j}.('ltoe_z')(i)];
+        k2a= knee-ankle;
+        h2t= toe-heel;
+        temp1= atan2d(k2a(1),k2a(2));
+        temp2= atan2d(h2t(1),h2t(2));
+        lknee_redo(i,1)= 90+temp1-temp2;
+
+        knee= [data{j}.('rkne_y')(i) data{j}.('rkne_z')(i)];
+        ankle= [data{j}.('rank_y')(i) data{j}.('rank_z')(i)];
+        heel= [data{j}.('rhee_y')(i) data{j}.('rhee_z')(i)];
+        toe= [data{j}.('rtoe_y')(i) data{j}.('rtoe_z')(i)];
+        k2a= knee-ankle;
+        h2t= toe-heel;
+        temp1= atan2d(k2a(1),k2a(2));
+        temp2= atan2d(h2t(1),h2t(2));
+        rknee_redo(i,1)= 90+temp1-temp2;
+    end
+end
 %% Assign Gait Cycles
 for j= 1:6
     gc= ones(height(data{j}),1);

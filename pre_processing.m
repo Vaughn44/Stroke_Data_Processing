@@ -179,6 +179,7 @@ fcutlow= 300;
 j= muscle_number(subject_number);
 window= 200; % was 400
 % Raw -> Signal -> Rect -> Env -> Filt -> mvc
+
 for i=1:j
     emg_raw(:,i)= emg_data{:,i+2};
 end
@@ -196,6 +197,9 @@ for i= 1:j
 end
 for i= 1:j
     mvc(i)= max(emg_env(:,i));
+end
+for i= 1:j/2
+    mvc(2*i-1:2*i)= max([mvc(2*i-1) mvc(2*i)]);
 end
 [b,a]= butter(4,5/fnyq,'low');
 for i= 1:j

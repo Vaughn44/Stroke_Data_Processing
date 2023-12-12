@@ -130,6 +130,7 @@ rcontact= 1;
 hs_counter = 1;
 to_counter = 1;
 state= 1;
+lcontact= zeros(frame_total,1);
 for i= 2:frame_total
     if any(lhs==i)
         hs_counter = hs_counter + 1;
@@ -151,6 +152,7 @@ end
 hs_counter = 1;
 to_counter = 1;
 state= 1;
+rcontact= zeros(frame_total,1);
 for i= 2:frame_total
     if any(rhs==i)
         hs_counter = hs_counter + 1;
@@ -179,6 +181,8 @@ fcutlow= 300;
 j= muscle_number(subject_number);
 window= 200; % was 400
 % Raw -> Signal -> Rect -> Env -> Filt -> mvc
+
+% Could add preallocating for speed
 
 for i=1:j
     emg_raw(:,i)= emg_data{:,i+2};

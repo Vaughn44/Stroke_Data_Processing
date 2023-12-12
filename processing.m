@@ -254,7 +254,6 @@ end
 trans= L(:,1);
 trans(:,2)= L(:,1)+L(:,2);
 Len= sum(L,2);
-        
 %% Calculate Parameters of Interest
 clear par
 % Frozen Step Length
@@ -264,23 +263,23 @@ for k= 1:3
             for i= 1:L(j,k)-1
                 temp= find(diff(data_gc{j,k}{i}.lcontact)==1); % Left HS
                 temp= temp(1);
-                par.right_step_length{j,k}(i,1)= (data_gc{j,k}{i}.('rank_y')(end) - data_gc{j,k}{i}.('lank_y')(temp)) + TS(j)*(height(data_gc{j,k}{i})-temp)*10;
+                par.step_length_healthy{j,k}(i,1)= (data_gc{j,k}{i}.('rank_y')(end) - data_gc{j,k}{i}.('lank_y')(temp)) + TS(j)*(height(data_gc{j,k}{i})-temp)*10;
                 
                 temp= find(diff(data_gc{j,k}{i+1}.lcontact)==1);
                 temp= temp(1);
-                par.left_step_length{j,k}(i,1)= (data_gc{j,k}{i+1}.('lank_y')(temp) - data_gc{j,k}{i}.('rank_y')(end)) + TS(j)*temp*10;
-                par.step_length_diff{j,k}(i,1)= par.left_step_length{j,k}(i,1)-par.right_step_length{j,k}(i,1);
+                par.step_length_paretic{j,k}(i,1)= (data_gc{j,k}{i+1}.('lank_y')(temp) - data_gc{j,k}{i}.('rank_y')(end)) + TS(j)*temp*10;
+                par.step_length_diff{j,k}(i,1)= par.step_length_healthy{j,k}(i,1)-par.step_length_paretic{j,k}(i,1);
             end
         elseif paretic_side{j} == 'R'
             for i= 1:L(j,k)-1
                 temp= find(diff(data_gc{j,k}{i}.rcontact)==1); % Right HS
                 temp= temp(1);
-                par.left_step_length{j,k}(i,1)= (data_gc{j,k}{i}.('lank_y')(end) - data_gc{j,k}{i}.('rank_y')(temp)) + TS(j)*(height(data_gc{j,k}{i})-temp)*10;
+                par.step_length_healthy{j,k}(i,1)= (data_gc{j,k}{i}.('lank_y')(end) - data_gc{j,k}{i}.('rank_y')(temp)) + TS(j)*(height(data_gc{j,k}{i})-temp)*10;
                 
                 temp= find(diff(data_gc{j,k}{i+1}.rcontact)==1);
                 temp= temp(1);
-                par.right_step_length{j,k}(i,1)= (data_gc{j,k}{i+1}.('rank_y')(temp) - data_gc{j,k}{i}.('lank_y')(end)) + TS(j)*temp*10;
-                par.step_length_diff{j,k}(i,1)= par.left_step_length{j,k}(i,1)-par.right_step_length{j,k}(i,1);
+                par.step_length_paretic{j,k}(i,1)= (data_gc{j,k}{i+1}.('rank_y')(temp) - data_gc{j,k}{i}.('lank_y')(end)) + TS(j)*temp*10;
+                par.step_length_diff{j,k}(i,1)= par.step_length_healthy{j,k}(i,1)-par.step_length_paretic{j,k}(i,1);
             end
         end
     end
@@ -303,26 +302,26 @@ end
 for k= 1:3
     for j= 1:6
         for i= 1:L(j,k)
-            if paretic_side{j} == 'R'   
+            if paretic_side{j} == 'R'
                 CoM= [data_gc{j,k}{i}{end,3:5}; data_gc{j,k}{i}{end,6:8}; data_gc{j,k}{i}{end,9:11}; data_gc{j,k}{i}{end,12:14}];
                 CoM= mean(CoM,1);
-                par.left_anterior{j,k}(i,1)= data_gc{j,k}{i}.('lhee_y')(end)-CoM(2);
+                par.anterior_healthy{j,k}(i,1)= data_gc{j,k}{i}.('lhee_y')(end)-CoM(2);
                 temp= find(diff(data_gc{j,k}{i}.rcontact)==1);
                 temp= temp(1);
                 CoM= [data_gc{j,k}{i}{temp,3:5}; data_gc{j,k}{i}{temp,6:8}; data_gc{j,k}{i}{temp,9:11}; data_gc{j,k}{i}{temp,12:14}];
                 CoM= mean(CoM,1);
-                par.right_anterior{j,k}(i,1)= data_gc{j,k}{i}.('rhee_y')(temp)-CoM(2);
-                par.anterior_diff{j,k}(i,1)= par.left_anterior{j,k}(i,1)-par.right_anterior{j,k}(i,1);          
+                par.anterior_paretic{j,k}(i,1)= data_gc{j,k}{i}.('rhee_y')(temp)-CoM(2);
+                par.anterior_diff{j,k}(i,1)= par.anterior_healthy{j,k}(i,1)-par.anterior_paretic{j,k}(i,1);          
             elseif paretic_side{j} == 'L'
                 CoM= [data_gc{j,k}{i}{end,3:5}; data_gc{j,k}{i}{end,6:8}; data_gc{j,k}{i}{end,9:11}; data_gc{j,k}{i}{end,12:14}];
                 CoM= mean(CoM,1);
-                par.right_anterior{j,k}(i,1)= data_gc{j,k}{i}.('rhee_y')(end)-CoM(2);
+                par.anterior_healthy{j,k}(i,1)= data_gc{j,k}{i}.('rhee_y')(end)-CoM(2);
                 temp= find(diff(data_gc{j,k}{i}.lcontact)==1);
                 temp= temp(1);
                 CoM= [data_gc{j,k}{i}{temp,3:5}; data_gc{j,k}{i}{temp,6:8}; data_gc{j,k}{i}{temp,9:11}; data_gc{j,k}{i}{temp,12:14}];
                 CoM= mean(CoM,1);
-                par.left_anterior{j,k}(i,1)= data_gc{j,k}{i}.('lhee_y')(temp)-CoM(2);
-                par.anterior_diff{j,k}(i,1)= par.left_anterior{j,k}(i,1)-par.right_anterior{j,k}(i,1);          
+                par.anterior_paretic{j,k}(i,1)= data_gc{j,k}{i}.('lhee_y')(temp)-CoM(2);
+                par.anterior_diff{j,k}(i,1)= par.anterior_healthy{j,k}(i,1)-par.anterior_paretic{j,k}(i,1); 
             end
         end
     end
@@ -333,9 +332,15 @@ for k= 1:3
     for j= 1:6
         for i= 1:L(j,k)
             l_gc= height(data_gc{j,k}{i});
-            par.left_stance{j,k}(i,1)= length(find(data_gc{j,k}{i}.lcontact==1))/l_gc*100;
-            par.right_stance{j,k}(i,1)= length(find(data_gc{j,k}{i}.rcontact==1))/l_gc*100;
-            par.stance_diff{j,k}(i,1)= par.left_stance{j,k}(i)-par.right_stance{j,k}(i);
+            if paretic_side{j} == 'R'
+                par.stance_healthy{j,k}(i,1)= length(find(data_gc{j,k}{i}.lcontact==1))/l_gc*100;
+                par.stance_paretic{j,k}(i,1)= length(find(data_gc{j,k}{i}.rcontact==1))/l_gc*100;
+                par.stance_diff{j,k}(i,1)= par.stance_healthy{j,k}(i)-par.stance_paretic{j,k}(i);
+            elseif paretic_side{j} == 'L'
+                par.stance_paretic{j,k}(i,1)= length(find(data_gc{j,k}{i}.lcontact==1))/l_gc*100;
+                par.stance_healthy{j,k}(i,1)= length(find(data_gc{j,k}{i}.rcontact==1))/l_gc*100;
+                par.stance_diff{j,k}(i,1)= par.stance_healthy{j,k}(i)-par.stance_paretic{j,k}(i);
+            end
         end
     end
 end
@@ -344,12 +349,21 @@ end
 for k= 1:3
     for j= 1:6
         for i= 1:L(j,k)
-            temp= find(data_gc{j,k}{i}.rcontact == 1); % right stance
-            par.right_ga{j,k}(i,1)= max(data_gc{j,k}{i}.rga(temp));
-            par.right_force{j,k}(i,1)= mean(data_gc{j,k}{i}.force_right(temp));
-            temp= find(data_gc{j,k}{i}.lcontact == 1); % left stance
-            par.left_ga{j,k}(i,1)= max(data_gc{j,k}{i}.lga(temp));
-            par.left_force{j,k}(i,1)= mean(data_gc{j,k}{i}.force_left(temp));
+            if paretic_side{j} == 'R'
+                temp= find(data_gc{j,k}{i}.rcontact == 1); % right stance
+                par.ga_pushoff_paretic{j,k}(i,1)= max(data_gc{j,k}{i}.rga(temp));
+                par.force_paretic{j,k}(i,1)= mean(data_gc{j,k}{i}.force_right(temp));
+                temp= find(data_gc{j,k}{i}.lcontact == 1); % left stance
+                par.ga_pushoff_healthy{j,k}(i,1)= max(data_gc{j,k}{i}.lga(temp));
+                par.force_healthy{j,k}(i,1)= mean(data_gc{j,k}{i}.force_left(temp));
+            elseif paretic_side{j} == 'L'
+                temp= find(data_gc{j,k}{i}.rcontact == 1); % right stance
+                par.ga_pushoff_healthy{j,k}(i,1)= max(data_gc{j,k}{i}.rga(temp));
+                par.force_healthy{j,k}(i,1)= mean(data_gc{j,k}{i}.force_right(temp));
+                temp= find(data_gc{j,k}{i}.lcontact == 1); % left stance
+                par.ga_pushoff_paretic{j,k}(i,1)= max(data_gc{j,k}{i}.lga(temp));
+                par.force_paretic{j,k}(i,1)= mean(data_gc{j,k}{i}.force_left(temp));
+            end
         end
     end
 end
@@ -358,24 +372,46 @@ end
 for k= 1:3
     for j= 1:6
         for i= 1:L(j,k)
-            par.left_ta{j,k}(i,1)= mean(data_gc{j,k}{i}.lta);
-            par.left_ga{j,k}(i,1)= mean(data_gc{j,k}{i}.lga);
-            par.right_ta{j,k}(i,1)= mean(data_gc{j,k}{i}.rta);
-            par.right_ga{j,k}(i,1)= mean(data_gc{j,k}{i}.rga);
-            if ismember(j,[2 3 4 5 6])
-                par.left_va{j,k}(i,1)= mean(data_gc{j,k}{i}.lva);
-                par.left_rf{j,k}(i,1)= mean(data_gc{j,k}{i}.lrf);
-                par.left_bf{j,k}(i,1)= mean(data_gc{j,k}{i}.lbf);
-                par.right_va{j,k}(i,1)= mean(data_gc{j,k}{i}.rva);
-                par.right_rf{j,k}(i,1)= mean(data_gc{j,k}{i}.rrf);
-                par.right_bf{j,k}(i,1)= mean(data_gc{j,k}{i}.rbf);
-            else
-                par.left_va{j,k}(i,1)= nan;
-                par.left_rf{j,k}(i,1)= nan;
-                par.left_bf{j,k}(i,1)= nan;
-                par.right_va{j,k}(i,1)= nan;
-                par.right_rf{j,k}(i,1)= nan;
-                par.right_bf{j,k}(i,1)= nan;
+            if paretic_side{j} == 'R'
+                par.ta_healthy{j,k}(i,1)= mean(data_gc{j,k}{i}.lta);
+                par.ga_healthy{j,k}(i,1)= mean(data_gc{j,k}{i}.lga);
+                par.ta_paretic{j,k}(i,1)= mean(data_gc{j,k}{i}.rta);
+                par.ga_paretic{j,k}(i,1)= mean(data_gc{j,k}{i}.rga);
+                if ismember(j,[2 3 4 5 6])
+                    par.va_healthy{j,k}(i,1)= mean(data_gc{j,k}{i}.lva);
+                    par.rf_healthy{j,k}(i,1)= mean(data_gc{j,k}{i}.lrf);
+                    par.bf_healthy{j,k}(i,1)= mean(data_gc{j,k}{i}.lbf);
+                    par.va_paretic{j,k}(i,1)= mean(data_gc{j,k}{i}.rva);
+                    par.rf_paretic{j,k}(i,1)= mean(data_gc{j,k}{i}.rrf);
+                    par.bf_paretic{j,k}(i,1)= mean(data_gc{j,k}{i}.rbf);
+                else
+                    par.va_healthy{j,k}(i,1)= nan;
+                    par.rf_healthy{j,k}(i,1)= nan;
+                    par.bf_healthy{j,k}(i,1)= nan;
+                    par.va_paretic{j,k}(i,1)= nan;
+                    par.rf_paretic{j,k}(i,1)= nan;
+                    par.bf_paretic{j,k}(i,1)= nan;
+                end
+            elseif paretic_side{j} == 'L'
+                par.ta_paretic{j,k}(i,1)= mean(data_gc{j,k}{i}.lta);
+                par.ga_paretic{j,k}(i,1)= mean(data_gc{j,k}{i}.lga);
+                par.ta_healthy{j,k}(i,1)= mean(data_gc{j,k}{i}.rta);
+                par.ga_healthy{j,k}(i,1)= mean(data_gc{j,k}{i}.rga);
+                if ismember(j,[2 3 4 5 6])
+                    par.va_paretic{j,k}(i,1)= mean(data_gc{j,k}{i}.lva);
+                    par.rf_paretic{j,k}(i,1)= mean(data_gc{j,k}{i}.lrf);
+                    par.bf_paretic{j,k}(i,1)= mean(data_gc{j,k}{i}.lbf);
+                    par.va_healthy{j,k}(i,1)= mean(data_gc{j,k}{i}.rva);
+                    par.rf_healthy{j,k}(i,1)= mean(data_gc{j,k}{i}.rrf);
+                    par.bf_healthy{j,k}(i,1)= mean(data_gc{j,k}{i}.rbf);
+                else
+                    par.va_healthy{j,k}(i,1)= nan;
+                    par.rf_healthy{j,k}(i,1)= nan;
+                    par.bf_healthy{j,k}(i,1)= nan;
+                    par.va_paretic{j,k}(i,1)= nan;
+                    par.rf_paretic{j,k}(i,1)= nan;
+                    par.bf_paretic{j,k}(i,1)= nan;
+                end
             end
         end
     end
@@ -388,15 +424,15 @@ for k= 1:3
             for i= 1:L(j,k)
                 temp= find(diff(data_gc{j,k}{i}.lcontact)==1); % Left HS
                 temp= temp(1);
-                par.left_knee_hs{j,k}(i,1)= data_gc{j,k}{i}.lkne_rx(temp);
-                par.right_knee_hs{j,k}(i,1)= data_gc{j,k}{i}.rkne_rx(end);
+                par.knee_hs_paretic{j,k}(i,1)= data_gc{j,k}{i}.lkne_rx(temp);
+                par.knee_hs_healthy{j,k}(i,1)= data_gc{j,k}{i}.rkne_rx(end);
             end
         elseif paretic_side{j} == 'R'
             for i= 1:L(j,k)-1
                 temp= find(diff(data_gc{j,k}{i}.rcontact)==1); % Right HS
                 temp= temp(1);
-                par.right_knee_hs{j,k}(i,1)= data_gc{j,k}{i}.rkne_rx(temp);
-                par.left_knee_hs{j,k}(i,1)= data_gc{j,k}{i}.lkne_rx(end);
+                par.knee_hs_paretic{j,k}(i,1)= data_gc{j,k}{i}.rkne_rx(temp);
+                par.knee_hs_healthy{j,k}(i,1)= data_gc{j,k}{i}.lkne_rx(end);
             end
         end
     end
@@ -406,30 +442,61 @@ end
 for k= 1:3
     for j= 1:6
         for i= 1:L(j,k)
-            par.max_left_knee_flexion{j,k}(i,1)= max(data_gc{j,k}{i}.lkne_rx);
-            par.max_right_knee_flexion{j,k}(i,1)= max(data_gc{j,k}{i}.rkne_rx);
-            
-            % During Left Swing
-            temp= find(data_gc{j,k}{i}.lcontact == 0); % left swing
-            par.max_left_dorsiflexion{j,k}(i,1)= max(data_gc{j,k}{i}.lank_rx(temp));
-            par.max_left_hip_hike{j,k}(i,1)= max(data_gc{j,k}{i}.lhip_z(temp));
-            [~,ind]= min(abs(data_gc{j,k}{i}.lhip_y(temp)-data_gc{j,k}{i}.lank_y(temp)));
-            par.left_circumduction{j,k}(i,1)= data_gc{j,k}{i}.lhip_x(temp(ind))-data_gc{j,k}{i}.lank_x(temp(ind));
-            par.left_ta_activation{j,k}(i,1)= mean(data_gc{j,k}{i}.lta(temp));
-            par.left_hip_velo{j,k}(i,1)= max(diff(data_gc{j,k}{i}.lhip_rx(temp))*100);
-            par.left_knee_velo{j,k}(i,1)= min(diff(data_gc{j,k}{i}.lkne_rx(temp))*100);
-            par.left_toe_clear{j,k}(i,1)= max(data_gc{j,k}{i}.ltoe_z(temp));
-            
-            % During Right Swing            
-            temp= find(data_gc{j,k}{i}.rcontact == 0); % right swing
-            par.max_right_dorsiflexion{j,k}(i,1)= max(data_gc{j,k}{i}.rank_rx(temp));
-            par.max_right_hip_hike{j,k}(i,1)= max(data_gc{j,k}{i}.rhip_z(temp));
-            [~,ind]= min(abs(data_gc{j,k}{i}.rhip_y(temp)-data_gc{j,k}{i}.rank_y(temp)));
-            par.right_circumduction{j,k}(i,1)= data_gc{j,k}{i}.rank_x(temp(ind))-data_gc{j,k}{i}.rhip_x(temp(ind));
-            par.right_ta_activation{j,k}(i,1)= mean(data_gc{j,k}{i}.rta(temp));
-            par.right_hip_velo{j,k}(i,1)= max(diff(data_gc{j,k}{i}.rhip_rx(temp))*100);
-            par.right_knee_velo{j,k}(i,1)= min(diff(data_gc{j,k}{i}.rkne_rx(temp))*100);
-            par.right_toe_clear{j,k}(i,1)= max(data_gc{j,k}{i}.rtoe_z(temp));
+            if paretic_side{j} == 'R'
+
+                par.max_knee_flexion_healthy{j,k}(i,1)= max(data_gc{j,k}{i}.lkne_rx);
+                par.max_knee_flexion_paretic{j,k}(i,1)= max(data_gc{j,k}{i}.rkne_rx);
+
+                % During Left Swing
+                temp= find(data_gc{j,k}{i}.lcontact == 0); % left swing
+                par.max_dorsiflexion_healthy{j,k}(i,1)= max(data_gc{j,k}{i}.lank_rx(temp));
+                par.max_hip_hike_healthy{j,k}(i,1)= max(data_gc{j,k}{i}.lhip_z(temp));
+                [~,ind]= min(abs(data_gc{j,k}{i}.lhip_y(temp)-data_gc{j,k}{i}.lank_y(temp)));
+                par.circumduction_healthy{j,k}(i,1)= data_gc{j,k}{i}.lhip_x(temp(ind))-data_gc{j,k}{i}.lank_x(temp(ind));
+                par.ta_swing_healthy{j,k}(i,1)= mean(data_gc{j,k}{i}.lta(temp));
+                par.hip_velo_healthy{j,k}(i,1)= max(diff(data_gc{j,k}{i}.lhip_rx(temp))*100);
+                par.knee_velo_healthy{j,k}(i,1)= min(diff(data_gc{j,k}{i}.lkne_rx(temp))*100);
+                par.toe_clear_healthy{j,k}(i,1)= max(data_gc{j,k}{i}.ltoe_z(temp));
+
+                % During Right Swing
+                temp= find(data_gc{j,k}{i}.rcontact == 0); % right swing
+                par.max_dorsiflexion_paretic{j,k}(i,1)= max(data_gc{j,k}{i}.rank_rx(temp));
+                par.max_hip_hike_paretic{j,k}(i,1)= max(data_gc{j,k}{i}.rhip_z(temp));
+                [~,ind]= min(abs(data_gc{j,k}{i}.rhip_y(temp)-data_gc{j,k}{i}.rank_y(temp)));
+                par.circumduction_paretic{j,k}(i,1)= data_gc{j,k}{i}.rank_x(temp(ind))-data_gc{j,k}{i}.rhip_x(temp(ind));
+                par.ta_swing_paretic{j,k}(i,1)= mean(data_gc{j,k}{i}.rta(temp));
+                par.hip_velo_paretic{j,k}(i,1)= max(diff(data_gc{j,k}{i}.rhip_rx(temp))*100);
+                par.knee_velo_paretic{j,k}(i,1)= min(diff(data_gc{j,k}{i}.rkne_rx(temp))*100);
+                par.toe_clear_paretic{j,k}(i,1)= max(data_gc{j,k}{i}.rtoe_z(temp));
+
+            elseif paretic_side{j} == 'L'
+
+                par.max_knee_flexion_paretic{j,k}(i,1)= max(data_gc{j,k}{i}.lkne_rx);
+                par.max_knee_flexion_healthy{j,k}(i,1)= max(data_gc{j,k}{i}.rkne_rx);
+
+                % During Left Swing
+                temp= find(data_gc{j,k}{i}.lcontact == 0); % left swing
+                par.max_dorsiflexion_paretic{j,k}(i,1)= max(data_gc{j,k}{i}.lank_rx(temp));
+                par.max_hip_hike_paretic{j,k}(i,1)= max(data_gc{j,k}{i}.lhip_z(temp));
+                [~,ind]= min(abs(data_gc{j,k}{i}.lhip_y(temp)-data_gc{j,k}{i}.lank_y(temp)));
+                par.circumduction_paretic{j,k}(i,1)= data_gc{j,k}{i}.lhip_x(temp(ind))-data_gc{j,k}{i}.lank_x(temp(ind));
+                par.ta_swing_paretic{j,k}(i,1)= mean(data_gc{j,k}{i}.lta(temp));
+                par.hip_velo_paretic{j,k}(i,1)= max(diff(data_gc{j,k}{i}.lhip_rx(temp))*100);
+                par.knee_velo_paretic{j,k}(i,1)= min(diff(data_gc{j,k}{i}.lkne_rx(temp))*100);
+                par.toe_clear_paretic{j,k}(i,1)= max(data_gc{j,k}{i}.ltoe_z(temp));
+
+                % During Right Swing
+                temp= find(data_gc{j,k}{i}.rcontact == 0); % right swing
+                par.max_dorsiflexion_healthy{j,k}(i,1)= max(data_gc{j,k}{i}.rank_rx(temp));
+                par.max_hip_hike_healthy{j,k}(i,1)= max(data_gc{j,k}{i}.rhip_z(temp));
+                [~,ind]= min(abs(data_gc{j,k}{i}.rhip_y(temp)-data_gc{j,k}{i}.rank_y(temp)));
+                par.circumduction_healthy{j,k}(i,1)= data_gc{j,k}{i}.rank_x(temp(ind))-data_gc{j,k}{i}.rhip_x(temp(ind));
+                par.ta_swing_healthy{j,k}(i,1)= mean(data_gc{j,k}{i}.rta(temp));
+                par.hip_velo_healthy{j,k}(i,1)= max(diff(data_gc{j,k}{i}.rhip_rx(temp))*100);
+                par.knee_velo_healthy{j,k}(i,1)= min(diff(data_gc{j,k}{i}.rkne_rx(temp))*100);
+                par.toe_clear_healthy{j,k}(i,1)= max(data_gc{j,k}{i}.rtoe_z(temp));
+
+            end
         end
     end
 end
@@ -476,6 +543,14 @@ for j= 1:6
     par.cop_path{j,5}= [mean(cop.x5,2) mean(cop.y5,2)];
     par.cop_path{j,5}= [par.cop_path{j,5};par.cop_path{j,5}(1,:)];
 end
+for j= 1:6
+    if ismember(paretic_side{j},'L')
+        for i= 1:5
+            par.cop_path{j,i}(:,1)= -par.cop_path{j,i}(:,1);
+        end
+    end
+end
+
 return
 %% CoP Metrics
 for k= 1:5
@@ -492,6 +567,8 @@ for k= 1:5
 end
 
 %% Last Thing Before Plots
+
+
 return
 
 %% Plot

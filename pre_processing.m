@@ -231,8 +231,8 @@ else
 end
 %% Process Forcemats (add gap) & Add to data
 % Calibrate & Upsample Forcemats
-c= 0.1729; % scales forcemats to N 
-temp= fm_data{:,5:end}.*c;
+C= 0.1729; % scales forcemats to N 
+temp= fm_data{:,5:end}.*C;
 fm_data_upsampled= interp1(1:length(temp),temp,linspace(1,length(temp),frame_total));
 
 for i= 1:frame_total
@@ -240,8 +240,12 @@ for i= 1:frame_total
     fm_grid_left{i,1}= fm_grid{i}(:,1:44);
     fm_grid_right{i,1}= fm_grid{i}(:,45:88);
 end
-c= 10.07; % constant: mm/cell
-gap= 25.84; % distance between mats (mm) 
+
+c= 10.21; % distance between cells in mm
+x_1_offset= -7.4; % x offset of left force mat origin in Vicon frame
+y_1_offset= -54.43; % y offset of left force mat origin in Vicon frame
+x_2_offset= 467.5; % x offset of right force mat origin in Vicon frame
+y_2_offset= -57.55; % y offset of right force mat origin in Vicon frame
 
 % filter left forcemat data
 for i= 1:frame_total
@@ -250,8 +254,8 @@ for i= 1:frame_total
     else
         x_limits= [min([data.lank_x(i) data.ltoe_x(i)])-50 max([data.lhee_x(i) data.ltoe_x(i)])+75];
         y_limits= [data.lhee_y(i)-10 data.ltoe_y(i)+100];
-        x_limits= round((x_limits + 11.1) / c + 1);
-        y_limits= round((y_limits +53.7) / c + 1);
+        x_limits= round((x_limits - x_1_offset) / c + 1);
+        y_limits= round((y_limits - y_1_offset) / c + 1);
         fm_grid_left{i}(:,1:x_limits(1)) = 0; % all cells too far left
         fm_grid_left{i}(:,x_limits(2):end) = 0; % all cells too far right
         fm_grid_left{i}(1:y_limits(1),:) = 0; % all cells too far backward
@@ -266,8 +270,8 @@ for i= 1:frame_total
     else
         x_limits= [min([data.rhee_x(i) data.rtoe_x(i)])-75 max([data.rank_x(i) data.rtoe_x(i)])+50];
         y_limits= [data.rhee_y(i)-10 data.rtoe_y(i)+75];
-        x_limits= round((x_limits - gap + 11.1) / c + 1 - 44);
-        y_limits= round((y_limits +53.7) / c + 1);
+        x_limits= round((x_limits - x_2_offset) / c + 1 - 44);
+        y_limits= round((y_limits - y_2_offset) / c + 1);
         fm_grid_right{i}(:,1:x_limits(1)) = 0; % all cells too far left
         fm_grid_right{i}(:,x_limits(2):end) = 0; % all cells too far right
         fm_grid_right{i}(1:y_limits(1),:) = 0; % all cells too far backward
@@ -296,24 +300,25 @@ for t= 1:frame_total
         for x= 1:88
             force = fm_grid{t}(y,x);
             if x<44.5
-                cop_x = cop_x + (x-1) * force;
+                cop_x = cop_x + (c * (x-1) + x_1_offset) * force;
+                cop_y = cop_y + (c * (y-1) + y_1_offset) * force;
             elseif x>44.5
-                cop_x = cop_x + (x-1+2.566) * force;
+                cop_x = cop_x + (c * (x-45) + x_2_offset) * force;
+                cop_y = cop_y + (c * (y-1) + y_2_offset) * force;
             end
-            cop_y = cop_y + (y-1) * force;
             total_force = total_force + force;
         end
         
         % left & right
         for x= 1:44
             force_left= fm_grid_left{t}(y,x);
-            cop_x_left = cop_x_left + (x-1) * force_left;
-            cop_y_left = cop_y_left + (y-1) * force_left;
+            cop_x_left = cop_x_left + (c * (x-1) + x_1_offset) * force_left;
+            cop_y_left = cop_y_left + (c * (y-1) + y_1_offset) * force_left;
             total_force_left = total_force_left + force_left;
             
             force_right= fm_grid_right{t}(y,x);
-            cop_x_right = cop_x_right + (x-1) * force_right;
-            cop_y_right = cop_y_right + (y-1) * force_right;
+            cop_x_right = cop_x_right + (c * (x-1) + x_2_offset) * force_right;
+            cop_y_right = cop_y_right + (c * (y-1) + y_2_offset) * force_right;
             total_force_right = total_force_right + force_right;
         end
     end

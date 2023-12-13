@@ -576,10 +576,7 @@ for k= 1:5
         par.cop_cross_to_center(j,k)= hypot(temp(1),temp(2));
     end
 end
-
 %% Last Thing Before Plots
-
-h= significance_test(par.ga_pushoff_healthy(j,:))
 return
 %% Plot
 close all
@@ -712,7 +709,7 @@ close all
 clc
 
 % Setup Plot
-j= 2; % Subject Number
+j= 1; % Subject Number
 figure; set(gcf,'color','w','Position',[-1452 86 1440 723]); hold on;
 subplot(3,4,1); hold on;
 main_title= sgtitle(['Subject ' num2str(j)  ' | \color[rgb]{0 .4471 .7647} Perturbed Side \color{black}| ' '\color[rgb]{.8 .2078 .1451} Paretic Side \color{black}| '  num2str(dur(j)/60) ' minutes | ' num2str(TS(j)) ' m/s']);
@@ -759,26 +756,26 @@ ylabel_input= 'Activation Level (%)';
 plot_number_input= 6;
 box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
 
-title_input= 'Average VA Activation';
-healthy_data_input= par.va_healthy(j,:);
-paretic_data_input= par.va_paretic(j,:);
-ylabel_input= 'Activation Level (%)';
-plot_number_input= 7;
-box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
-
-title_input= 'Average RF Activation';
-healthy_data_input= par.rf_healthy(j,:);
-paretic_data_input= par.rf_paretic(j,:);
-ylabel_input= 'Activation Level (%)';
-plot_number_input= 8;
-box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
-
-title_input= 'Average BF Activation';
-healthy_data_input= par.bf_healthy(j,:);
-paretic_data_input= par.bf_paretic(j,:);
-ylabel_input= 'Activation Level (%)';
-plot_number_input= 9;
-box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
+% title_input= 'Average VA Activation';
+% healthy_data_input= par.va_healthy(j,:);
+% paretic_data_input= par.va_paretic(j,:);
+% ylabel_input= 'Activation Level (%)';
+% plot_number_input= 7;
+% box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
+% 
+% title_input= 'Average RF Activation';
+% healthy_data_input= par.rf_healthy(j,:);
+% paretic_data_input= par.rf_paretic(j,:);
+% ylabel_input= 'Activation Level (%)';
+% plot_number_input= 8;
+% box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
+% 
+% title_input= 'Average BF Activation';
+% healthy_data_input= par.bf_healthy(j,:);
+% paretic_data_input= par.bf_paretic(j,:);
+% ylabel_input= 'Activation Level (%)';
+% plot_number_input= 9;
+% box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
 
 title_input= 'TA Activation during Swing';
 healthy_data_input= par.ta_swing_healthy(j,:);

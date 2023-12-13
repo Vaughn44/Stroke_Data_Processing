@@ -270,7 +270,10 @@ for i= 1:frame_total
     else
         x_limits= [min([data.rhee_x(i) data.rtoe_x(i)])-75 max([data.rank_x(i) data.rtoe_x(i)])+50];
         y_limits= [data.rhee_y(i)-10 data.rtoe_y(i)+75];
-        x_limits= round((x_limits - x_2_offset) / c + 1 - 44);
+        if x_limits(1)<x_2_offset
+            x_limits(1)= x_2_offset;
+        end
+        x_limits= round((x_limits - x_2_offset) / c + 1);
         y_limits= round((y_limits - y_2_offset) / c + 1);
         fm_grid_right{i}(:,1:x_limits(1)) = 0; % all cells too far left
         fm_grid_right{i}(:,x_limits(2):end) = 0; % all cells too far right
@@ -355,8 +358,8 @@ end
 data= Data;
 clear Data i;
 save('Data/data.mat')
-alert;
-return
+
+
 %% Combine fm_data into one .mat file
 clear all
 close all
@@ -371,3 +374,5 @@ end
 fm_data= temp;
 clear Data i;
 save('Data/fm_data.mat')
+
+alert;

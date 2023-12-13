@@ -556,16 +556,18 @@ for j= 1:6
         end
     end
 end
-%% Average Data
-
-
-
+%% Return
 return
 %% CoP Metrics
 for k= 1:5
     for j= 1:6
         tempx= par.cop_path{j,k}(:,1);
         tempy= par.cop_path{j,k}(:,2);
+        close all
+        figure; hold on
+        axis([-200 200 -200 200])
+        plot(tempx(1:50),tempy(1:50))
+        plot(tempx(51:101),tempy(51:101))
         inter= InterX([tempx(1:50)'; tempy(1:50)'],[tempx(51:101)'; tempy(51:101)']);
         x_mean= mean([min(tempx) max(tempx)]);
         [~,ind]= min(abs(x_mean-(inter(1,:))));
@@ -574,6 +576,7 @@ for k= 1:5
         par.cop_cross_to_center(j,k)= hypot(temp(1),temp(2));
     end
 end
+
 %% Last Thing Before Plots
 
 h= significance_test(par.ga_pushoff_healthy(j,:))
@@ -795,6 +798,96 @@ title_input= 'Center of Pressure';
 data_input= par.cop_path(j,:);
 plot_number_input= 12;
 cop_plot(data_input,title_input,plot_number_input)
+%% Average BoxPlot
+close all
+clc
+
+% Setup Plot
+figure; set(gcf,'color','w','Position',[-1452 86 1440 723]); hold on;
+subplot(3,4,1); hold on;
+main_title= sgtitle('Average Data | \color[rgb]{0 .4471 .7647} Perturbed Side \color{black}| \color[rgb]{.8 .2078 .1451} Paretic Side \color{black}');
+set(main_title,'FontWeight','bold','FontSize',22);
+
+title_input= 'Frozen Step Length';
+healthy_data_input= par.step_length_healthy;
+paretic_data_input= par.step_length_paretic;
+ylabel_input= 'Ankle to Ankle (mm)';
+plot_number_input= 1;
+avg_box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'Anterior Step Length';
+healthy_data_input= par.anterior_healthy;
+paretic_data_input= par.anterior_paretic;
+ylabel_input= 'CoM to Ankle (mm)';
+plot_number_input= 2;
+avg_box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'Stance Time';
+only_data_input= par.stance_diff;
+ylabel_input= '% Gait Cycle';
+plot_number_input= 3;
+avg_single_box_whisker_plot(only_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'Stance Force';
+healthy_data_input= par.force_healthy;
+paretic_data_input= par.force_paretic;
+ylabel_input= 'Avg Force (units)';
+plot_number_input= 4;
+avg_box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'Average TA Activation';
+healthy_data_input= par.ta_healthy;
+paretic_data_input= par.ta_paretic;
+ylabel_input= 'Activation Level (%)';
+plot_number_input= 5;
+avg_box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'Average GA Activation';
+healthy_data_input= par.ga_healthy;
+paretic_data_input= par.ga_paretic;
+ylabel_input= 'Activation Level (%)';
+plot_number_input= 6;
+avg_box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'Average VA Activation';
+healthy_data_input= par.va_healthy;
+paretic_data_input= par.va_paretic;
+ylabel_input= 'Activation Level (%)';
+plot_number_input= 7;
+avg_box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'Average RF Activation';
+healthy_data_input= par.rf_healthy;
+paretic_data_input= par.rf_paretic;
+ylabel_input= 'Activation Level (%)';
+plot_number_input= 8;
+avg_box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'Average BF Activation';
+healthy_data_input= par.bf_healthy;
+paretic_data_input= par.bf_paretic;
+ylabel_input= 'Activation Level (%)';
+plot_number_input= 9;
+avg_box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'TA Activation during Swing';
+healthy_data_input= par.ta_swing_healthy;
+paretic_data_input= par.ta_swing_paretic;
+ylabel_input= 'Activation Level (%)';
+plot_number_input= 10;
+avg_box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'GA Activation at Push Off';
+healthy_data_input= par.ga_pushoff_healthy;
+paretic_data_input= par.ga_pushoff_paretic;
+ylabel_input= 'Activation Level (%)';
+plot_number_input= 11;
+avg_box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
+
+% title_input= 'Center of Pressure';
+% data_input= par.cop_path(j,:);
+% plot_number_input= 12;
+% cop_plot(data_input,title_input,plot_number_input)
 %% CoP Path
 close all
 span = 6000; % (frames) 60sec
@@ -827,6 +920,194 @@ figure;
 % plot(cop_com(:,1),cop_com(:,2))
 plot(movmean(cop_com(:,1),20),movmean(cop_com(:,2),20))
 %% Functions
+function avg_single_box_whisker_plot(parameter_of_interest,plot_title,plot_ylabel,subplot_number)
+blue= [0,114/255,195/255,1];
+red= [204/255,53/255,37/255,1];
+bluet= [0,114/255,195/255,.1];
+redt= [204/255,53/255,37/255,.1];
+bluem= [0,114/255,195/255];
+redm= [204/255,53/255,37/255];
+purple= [163/255 41/255 214/255 1];
+purplet= [163/255 41/255 214/255 .1];
+purplem= [163/255 41/255 214/255];
+SPAN= 30;
+
+poi= parameter_of_interest;
+for j= 1:6
+    temp_a(:,j)= poi{j,1}(end-SPAN+1:end);
+    temp_b1(:,j)= poi{j,2}(1:SPAN);
+    temp_b2(:,j)= poi{j,2}(end-SPAN+1:end);
+    temp_c1(:,j)= poi{j,3}(1:SPAN);
+    temp_c2(:,j)= poi{j,3}(end-SPAN+1:end);
+end
+
+box_data(:,1)= mean(temp_a,2);
+box_data(1:SPAN,2)= nan; 
+box_data(:,3)= mean(temp_b1,2); 
+box_data(1:SPAN,4)= nan; 
+box_data(:,5)= mean(temp_b2,2);
+box_data(1:SPAN,6)= nan; 
+box_data(:,7)= mean(temp_c1,2);
+box_data(1:SPAN,8)= nan; 
+box_data(:,9)= mean(temp_c2,2);
+
+colors = purple(1:3);
+
+subplot(3,4,subplot_number); hold on;
+plot([-100 100],[0 0],'LineWidth',1,'LineStyle','--','color',[.3 .3 .3],'HandleVisibility','off')
+boxplot(box_data,'outliersize',4)
+set(findobj(gca,'type','line'),'linew',1)
+set(findobj(gca,'type','line'),'color','k');
+% set(findobj(gcf,'tag','Outliers'),'MarkerSize',25);
+h = findobj(gca,'Tag','Box');
+h1= findobj(gca,'Tag','Outliers');
+for j=1:length(h)
+    patch(get(h(j),'XData'),get(h(j),'YData'),colors,'FaceAlpha',.5);
+end
+set(h1,'MarkerEdgeColor','k');
+plot([2 2],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+plot([6 6],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+
+% signif= significance_test(only_data);
+% ax= axis;
+% y1= ax(4)*1.05;
+% y2= ax(4)*1.25;
+% axis([ax(1) ax(2) ax(3) ax(4)*1.5])
+% if signif(1) == 1
+%     plot([1 7],[y1 y1],'color',purple,'LineWidth',1)
+%     text(mean([1 7]),mean([y1 y2]),'??','fontsize',8,'color',purple)
+% elseif signif(1) == -1
+%     plot([1 7],[y1 y1],'color',purple,'LineWidth',1)
+%     text(mean([1 7]),mean([y1 y2]),'??','fontsize',8,'color',purple)
+% end
+% if signif(2) == -1
+%     plot([1 9],[y2 y2],'color',purple,'LineWidth',1)
+%     text(mean([1 9]),mean([y2 ax(4)*1.5]),'??','fontsize',8,'color',purple)
+% elseif signif(2) == 1
+%     plot([1 9],[y2 y2],'color',purple,'LineWidth',1)
+%     text(mean([1 9]),mean([y2 ax(4)*1.5]),'??','fontsize',8,'color',purple)
+% end
+
+xticks([])
+title(plot_title)
+ylabel(plot_ylabel)
+
+end
+
+function avg_box_whisker_plot(left_parameter_of_interest,right_parameter_of_interest,plot_title,plot_ylabel,subplot_number)
+% box_whisker_plot(left_data,right_data,plot_title,plot_ylabel,subplot_number)
+blue= [0,114/255,195/255,1];
+red= [204/255,53/255,37/255,1];
+bluet= [0,114/255,195/255,.1];
+redt= [204/255,53/255,37/255,.1];
+bluem= [0,114/255,195/255];
+redm= [204/255,53/255,37/255];
+purple= [163/255 41/255 214/255 1];
+purplet= [163/255 41/255 214/255 .1];
+purplem= [163/255 41/255 214/255];
+SPAN= 30;
+
+l_poi= left_parameter_of_interest;
+for j= 1:6
+    l_temp_a(:,j)= l_poi{j,1}(end-SPAN+1:end);
+    l_temp_b1(:,j)= l_poi{j,2}(1:SPAN);
+    l_temp_b2(:,j)= l_poi{j,2}(end-SPAN+1:end);
+    l_temp_c1(:,j)= l_poi{j,3}(1:SPAN);
+    l_temp_c2(:,j)= l_poi{j,3}(end-SPAN+1:end);
+end
+
+r_poi= right_parameter_of_interest;
+for j= 1:6
+    r_temp_a(:,j)= r_poi{j,1}(end-SPAN+1:end);
+    r_temp_b1(:,j)= r_poi{j,2}(1:SPAN);
+    r_temp_b2(:,j)= r_poi{j,2}(end-SPAN+1:end);
+    r_temp_c1(:,j)= r_poi{j,3}(1:SPAN);
+    r_temp_c2(:,j)= r_poi{j,3}(end-SPAN+1:end);
+end
+ 
+box_data(:,1)= mean(l_temp_a,2);
+box_data(:,2)= mean(r_temp_a,2);
+box_data(1:SPAN,3)= nan; 
+box_data(:,4)= mean(l_temp_b1,2);
+box_data(:,5)= mean(r_temp_b1,2);
+box_data(1:SPAN,6)= nan; 
+box_data(:,7)= mean(l_temp_b2,2);
+box_data(:,8)= mean(r_temp_b2,2);
+box_data(1:SPAN,9)= nan; 
+box_data(:,10)= mean(l_temp_c1,2);
+box_data(:,11)= mean(r_temp_c1,2);
+box_data(1:SPAN,12)= nan; 
+box_data(:,13)= mean(l_temp_c2,2);
+box_data(:,14)= mean(r_temp_c2,2);
+
+for i= 1:14
+    if ismember(i,[1 4 7 10 13])
+        colors(i,:) = red(1:3);
+    elseif ismember(i,[2 5 8 11 14])
+        colors(i,:) = blue(1:3);
+    end
+end
+
+subplot(3,4,subplot_number); hold on;
+boxplot(box_data,'outliersize',4)
+set(findobj(gca,'type','line'),'linew',1)
+set(findobj(gca,'type','line'),'color','k');
+% set(findobj(gcf,'tag','Outliers'),'MarkerSize',25);
+h = findobj(gca,'Tag','Box');
+h1= findobj(gca,'Tag','Outliers');
+for j=1:length(h)
+    patch(get(h(j),'XData'),get(h(j),'YData'),colors(j,:),'FaceAlpha',.5);
+end
+set(h1,'MarkerEdgeColor','k');
+plot([3 3],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+plot([9 9],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+xticks([])
+title(plot_title)
+ylabel(plot_ylabel)
+
+
+% ax= axis;
+% axis([ax(1) ax(2) ax(3) ax(4)*1.5])
+% y1= ax(4)*1.05;
+% y2= ax(4)*1.15;
+% y3= ax(4)*1.25;
+% y4= ax(4)*1.35;
+% y5= ax(4)*1.45;
+% 
+% signif= significance_test(left_data);
+% if signif(1) == 1
+%     plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
+%     text(mean([1 10]),mean([y1 y2]),'??','fontsize',8,'color',blue)
+% elseif signif(1) == -1
+%     plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
+%     text(mean([1 10]),mean([y1 y2]),'??','fontsize',8,'color',blue)
+% end
+% if signif(2) == -1
+%     plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
+%     text(mean([1 13]),mean([y2 y3]),'??','fontsize',8,'color',blue)
+% elseif signif(2) == 1
+%     plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
+%     text(mean([1 13]),mean([y2 y3]),'??','fontsize',8,'color',blue)
+% end
+% 
+% signif= significance_test(right_data);
+% if signif(1) == 1
+%     plot([2 11],[y3 y3],'color',red,'LineWidth',1)
+%     text(mean([2 11]),mean([y3 y4]),'??','fontsize',8,'color',red)
+% elseif signif(1) == -1
+%     plot([2 11],[y3 y3],'color',red,'LineWidth',1)
+%     text(mean([2 11]),mean([y3 y4]),'??','fontsize',8,'color',red)
+% end
+% if signif(2) == -1
+%     plot([2 14],[y4 y4],'color',red,'LineWidth',1)
+%     text(mean([2 14]),mean([y4 y5]),'??','fontsize',8,'color',red)
+% elseif signif(2) == 1
+%     plot([2 14],[y4 y4],'color',red,'LineWidth',1)
+%     text(mean([2 14]),mean([y4 y5]),'??','fontsize',8,'color',red)
+% end
+
+end
+
 function single_box_whisker_plot(only_data,plot_title,plot_ylabel,subplot_number)
 % box_whisker_plot(left_data,right_data,plot_title,plot_ylabel,subplot_number)
 blue= [0,114/255,195/255,1];

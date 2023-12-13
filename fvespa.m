@@ -129,39 +129,39 @@ vel_sag = [0 diff(y_filt_sag)];
 % offline_heel_strikes = real_time_heel_strikes';
 % offline_heel_strikes(find(y_filt_sag(real_time_heel_strikes)>690)) = computed_heel_strikes(find(y_filt_sag(real_time_heel_strikes)>690));
 
-figure(2)
-ax(1) = subplot(4,1,1);
-hold on;
-plot(vel_vert)
-plot(computed_heel_strikes,vel_vert(computed_heel_strikes),'rx','Linewidth',2,'MarkerSize',10)
-plot(real_time_heel_strikes,vel_vert(real_time_heel_strikes),'kd','Linewidth',2,'MarkerSize',10)
-plot(1:length(vel_vert),zeros(size(vel_vert)),'k--')
-plot(1:length(vel_vert),vel_z_thld*ones(size(vel_vert)),'r--')
-legend('Vertical Velocity','Offline F-VESPA H.S.','Real-time F-VESPA H.S.','Threshold')
-title('Vertical Velocity of Left Heel Marker','interpreter','latex')
-ax(2) = subplot(4,1,2);
-hold on;
-plot(vel_sag)
-plot(computed_heel_strikes,vel_sag(computed_heel_strikes),'rx','Linewidth',2,'MarkerSize',10)
-plot(real_time_heel_strikes,vel_sag(real_time_heel_strikes),'kd','Linewidth',2,'MarkerSize',10)
-plot(1:length(vel_sag),0*ones(size(vel_sag)),'k--')
-plot(1:length(vel_sag),vel_s_thld*ones(size(vel_sag)),'r--')
-title('Sagital Velocity of Left Heel Marker','interpreter','latex')
-ax(3) = subplot(4,1,3);
-hold on;
-plot(y_filt_vert)
-plot(computed_heel_strikes,y_filt_vert(computed_heel_strikes),'rx')
-plot(real_time_heel_strikes,y_filt_vert(real_time_heel_strikes),'kd')
-plot(1:length(y_filt_vert),500*ones(size(y_filt_vert)),'r--')
-legend('Vertical Position','Offline F-VESPA H.S.','Real-time F-VESPA H.S.','Threshold')
-title('Vertical Position of Left Heel Marker','interpreter','latex')
-ax(4) = subplot(4,1,4);
-hold on;
-plot(y_filt_sag)
-plot(computed_heel_strikes,y_filt_sag(computed_heel_strikes),'rx')
-plot(real_time_heel_strikes,y_filt_sag(real_time_heel_strikes),'kd')
-title('Sagital Position of Left Heel Marker','interpreter','latex')
-linkaxes(ax,'x')
+% figure(2)
+% ax(1) = subplot(4,1,1);
+% hold on;
+% plot(vel_vert)
+% plot(computed_heel_strikes,vel_vert(computed_heel_strikes),'rx','Linewidth',2,'MarkerSize',10)
+% plot(real_time_heel_strikes,vel_vert(real_time_heel_strikes),'kd','Linewidth',2,'MarkerSize',10)
+% plot(1:length(vel_vert),zeros(size(vel_vert)),'k--')
+% plot(1:length(vel_vert),vel_z_thld*ones(size(vel_vert)),'r--')
+% legend('Vertical Velocity','Offline F-VESPA H.S.','Real-time F-VESPA H.S.','Threshold')
+% title('Vertical Velocity of Left Heel Marker','interpreter','latex')
+% ax(2) = subplot(4,1,2);
+% hold on;
+% plot(vel_sag)
+% plot(computed_heel_strikes,vel_sag(computed_heel_strikes),'rx','Linewidth',2,'MarkerSize',10)
+% plot(real_time_heel_strikes,vel_sag(real_time_heel_strikes),'kd','Linewidth',2,'MarkerSize',10)
+% plot(1:length(vel_sag),0*ones(size(vel_sag)),'k--')
+% plot(1:length(vel_sag),vel_s_thld*ones(size(vel_sag)),'r--')
+% title('Sagital Velocity of Left Heel Marker','interpreter','latex')
+% ax(3) = subplot(4,1,3);
+% hold on;
+% plot(y_filt_vert)
+% plot(computed_heel_strikes,y_filt_vert(computed_heel_strikes),'rx')
+% plot(real_time_heel_strikes,y_filt_vert(real_time_heel_strikes),'kd')
+% plot(1:length(y_filt_vert),500*ones(size(y_filt_vert)),'r--')
+% legend('Vertical Position','Offline F-VESPA H.S.','Real-time F-VESPA H.S.','Threshold')
+% title('Vertical Position of Left Heel Marker','interpreter','latex')
+% ax(4) = subplot(4,1,4);
+% hold on;
+% plot(y_filt_sag)
+% plot(computed_heel_strikes,y_filt_sag(computed_heel_strikes),'rx')
+% plot(real_time_heel_strikes,y_filt_sag(real_time_heel_strikes),'kd')
+% title('Sagital Position of Left Heel Marker','interpreter','latex')
+% linkaxes(ax,'x')
 
 offline_heel_strikes = computed_heel_strikes;
 

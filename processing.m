@@ -19,7 +19,6 @@
 % - TA Swing Activation
 
 % 
-
 %% Import Data & Setup
 clear all
 close all
@@ -161,6 +160,13 @@ for j= 1:6
             counter3 = counter3 + 1;
         end
         
+    end
+end
+for k = 1:3
+    for j= 1:6
+        if height(data_gc{j,k}{1})<10
+            data_gc{j,k}(1)= [];
+        end
     end
 end
 %% Normalize wrt Time
@@ -509,28 +515,28 @@ for j= 1:6
         % Late Baseline
         com_x= mean([data_gc_normalized{j,1}{end-gc_window+i}.lasi_x data_gc_normalized{j,1}{end-gc_window+i}.rasi_x data_gc_normalized{j,1}{end-gc_window+i}.lpsi_x data_gc_normalized{j,1}{end-gc_window+i}.rpsi_x ],2);
         com_y= mean([data_gc_normalized{j,1}{end-gc_window+i}.lasi_y data_gc_normalized{j,1}{end-gc_window+i}.rasi_y data_gc_normalized{j,1}{end-gc_window+i}.lpsi_y data_gc_normalized{j,1}{end-gc_window+i}.rpsi_y ],2);
-        cop.x1(:,i)= (c * data_gc_normalized{j,1}{end-gc_window+i}.cop_x - 11.1) - com_x;
-        cop.y1(:,i)= (c * data_gc_normalized{j,1}{end-gc_window+i}.cop_y - 53.7) - com_y;
+        cop.x1(:,i)= data_gc_normalized{j,1}{end-gc_window+i}.cop_x - com_x;
+        cop.y1(:,i)= data_gc_normalized{j,1}{end-gc_window+i}.cop_y - com_y;
         % Early Adaptation
         com_x= mean([data_gc_normalized{j,2}{i}.lasi_x data_gc_normalized{j,2}{i}.rasi_x data_gc_normalized{j,2}{i}.lpsi_x data_gc_normalized{j,2}{i}.rpsi_x ],2);
         com_y= mean([data_gc_normalized{j,2}{i}.lasi_y data_gc_normalized{j,2}{i}.rasi_y data_gc_normalized{j,2}{i}.lpsi_y data_gc_normalized{j,2}{i}.rpsi_y ],2);
-        cop.x2(:,i)= (c * data_gc_normalized{j,2}{i}.cop_x - 11.1) - com_x;
-        cop.y2(:,i)= (c * data_gc_normalized{j,2}{i}.cop_y - 53.7) - com_y;
+        cop.x2(:,i)= data_gc_normalized{j,2}{i}.cop_x - com_x;
+        cop.y2(:,i)= data_gc_normalized{j,2}{i}.cop_y - com_y;
         % Late Adaptation
         com_x= mean([data_gc_normalized{j,2}{end-gc_window+i}.lasi_x data_gc_normalized{j,2}{end-gc_window+i}.rasi_x data_gc_normalized{j,2}{end-gc_window+i}.lpsi_x data_gc_normalized{j,2}{end-gc_window+i}.rpsi_x ],2);
         com_y= mean([data_gc_normalized{j,2}{end-gc_window+i}.lasi_y data_gc_normalized{j,2}{end-gc_window+i}.rasi_y data_gc_normalized{j,2}{end-gc_window+i}.lpsi_y data_gc_normalized{j,2}{end-gc_window+i}.rpsi_y ],2);
-        cop.x3(:,i)= (c * data_gc_normalized{j,2}{end-gc_window+i}.cop_x - 11.1) - com_x;
-        cop.y3(:,i)= (c * data_gc_normalized{j,2}{end-gc_window+i}.cop_y - 53.7) - com_y;
+        cop.x3(:,i)= data_gc_normalized{j,2}{end-gc_window+i}.cop_x - com_x;
+        cop.y3(:,i)= data_gc_normalized{j,2}{end-gc_window+i}.cop_y - com_y;
         % Early Observation
         com_x= mean([data_gc_normalized{j,3}{i}.lasi_x data_gc_normalized{j,3}{i}.rasi_x data_gc_normalized{j,3}{i}.lpsi_x data_gc_normalized{j,3}{i}.rpsi_x ],2);
         com_y= mean([data_gc_normalized{j,3}{i}.lasi_y data_gc_normalized{j,3}{i}.rasi_y data_gc_normalized{j,3}{i}.lpsi_y data_gc_normalized{j,3}{i}.rpsi_y ],2);
-        cop.x4(:,i)= (c * data_gc_normalized{j,3}{i}.cop_x - 11.1) - com_x;
-        cop.y4(:,i)= (c * data_gc_normalized{j,3}{i}.cop_y - 53.7) - com_y;
+        cop.x4(:,i)= data_gc_normalized{j,3}{i}.cop_x - com_x;
+        cop.y4(:,i)= data_gc_normalized{j,3}{i}.cop_y - com_y;
         % Late Observation
         com_x= mean([data_gc_normalized{j,3}{end-gc_window+i}.lasi_x data_gc_normalized{j,3}{end-gc_window+i}.rasi_x data_gc_normalized{j,3}{end-gc_window+i}.lpsi_x data_gc_normalized{j,3}{end-gc_window+i}.rpsi_x ],2);
         com_y= mean([data_gc_normalized{j,3}{end-gc_window+i}.lasi_y data_gc_normalized{j,3}{end-gc_window+i}.rasi_y data_gc_normalized{j,3}{end-gc_window+i}.lpsi_y data_gc_normalized{j,3}{end-gc_window+i}.rpsi_y ],2);
-        cop.x5(:,i)= (c * data_gc_normalized{j,3}{end-gc_window+i}.cop_x - 11.1) - com_x;
-        cop.y5(:,i)= (c * data_gc_normalized{j,3}{end-gc_window+i}.cop_y - 53.7) - com_y;
+        cop.x5(:,i)= data_gc_normalized{j,3}{end-gc_window+i}.cop_x - com_x;
+        cop.y5(:,i)= data_gc_normalized{j,3}{end-gc_window+i}.cop_y - com_y;
     end
     par.cop_path{j,1}= [mean(cop.x1,2) mean(cop.y1,2)];
     par.cop_path{j,1}= [par.cop_path{j,1};par.cop_path{j,1}(1,:)];
@@ -550,6 +556,9 @@ for j= 1:6
         end
     end
 end
+%% Average Data
+
+
 
 return
 %% CoP Metrics
@@ -565,12 +574,10 @@ for k= 1:5
         par.cop_cross_to_center(j,k)= hypot(temp(1),temp(2));
     end
 end
-
 %% Last Thing Before Plots
 
-
+h= significance_test(par.ga_pushoff_healthy(j,:))
 return
-
 %% Plot
 close all
 clc
@@ -587,12 +594,12 @@ end
 set(main_title,'FontWeight','bold','FontSize',22);
 
 title_input= 'Frozen Step Length';
-left_data_input= par.left_step_length(j,:);
-right_data_input= par.right_step_length(j,:);
+healthy_data_input= par.left_step_length(j,:);
+paretic_data_input= par.right_step_length(j,:);
 diff_data_input= par.step_length_diff(j,:);
 ylabel_input= 'Ankle to Ankle (mm)';
 plot_number_input= 1;
-double_axis_plot(left_data_input,right_data_input,diff_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
+double_axis_plot(healthy_data_input,paretic_data_input,diff_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
 
 title_input= 'Stride Length';
 data_input= par.stride_length(j,:);
@@ -601,41 +608,41 @@ plot_number_input= 2;
 single_plot(data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
 
 title_input= 'Anterior Step Length';
-left_data_input= par.left_anterior(j,:);
-right_data_input= par.right_anterior(j,:);
+healthy_data_input= par.left_anterior(j,:);
+paretic_data_input= par.right_anterior(j,:);
 diff_data_input= par.anterior_diff(j,:);
 ylabel_input= 'CoM to Ankle (mm)';
 plot_number_input= 3;
-double_axis_plot(left_data_input,right_data_input,diff_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
+double_axis_plot(healthy_data_input,paretic_data_input,diff_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
 
 title_input= 'Stance Time';
-left_data_input= par.left_stance(j,:);
-right_data_input= par.right_stance(j,:);
+healthy_data_input= par.left_stance(j,:);
+paretic_data_input= par.right_stance(j,:);
 diff_data_input= par.stance_diff(j,:);
 ylabel_input= '% Gait Cycle';
 plot_number_input= 4;
-double_axis_plot(left_data_input,right_data_input,diff_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
+double_axis_plot(healthy_data_input,paretic_data_input,diff_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
 
 title_input= 'Max Knee Flexion during Swing';
-left_data_input= par.max_left_knee_flexion(j,:);
-right_data_input= par.max_right_knee_flexion(j,:);
+healthy_data_input= par.max_left_knee_flexion(j,:);
+paretic_data_input= par.max_right_knee_flexion(j,:);
 ylabel_input= 'Flexion Angle (degrees)';
 plot_number_input= 5;
-normal_plot(left_data_input,right_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
+normal_plot(healthy_data_input,paretic_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
 
 title_input= 'Max Dorsiflexion during Swing';
-left_data_input= par.max_left_dorsiflexion(j,:);
-right_data_input= par.max_right_dorsiflexion(j,:);
+healthy_data_input= par.max_left_dorsiflexion(j,:);
+paretic_data_input= par.max_right_dorsiflexion(j,:);
 ylabel_input= 'Flexion Angle (degrees)';
 plot_number_input= 6;
-normal_plot(left_data_input,right_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
+normal_plot(healthy_data_input,paretic_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
 
 title_input= 'Knee Angle at Heel Strike';
-left_data_input= par.left_knee_hs(j,:);
-right_data_input= par.right_knee_hs(j,:);
+healthy_data_input= par.left_knee_hs(j,:);
+paretic_data_input= par.right_knee_hs(j,:);
 ylabel_input= 'Flexion Angle (degrees)';
 plot_number_input= 7;
-normal_plot(left_data_input,right_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
+normal_plot(healthy_data_input,paretic_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
 
 title_input= 'Center of Pressure';
 data_input= par.cop_path(j,:);
@@ -643,88 +650,84 @@ plot_number_input= 8;
 cop_plot(data_input,title_input,plot_number_input)
 
 title_input= 'Hip Hiking';
-left_data_input= par.max_left_hip_hike(j,:);
-right_data_input= par.max_right_hip_hike(j,:);
+healthy_data_input= par.max_left_hip_hike(j,:);
+paretic_data_input= par.max_right_hip_hike(j,:);
 ylabel_input= 'Hip Height (mm)';
 plot_number_input= 9;
-normal_plot(left_data_input,right_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
+normal_plot(healthy_data_input,paretic_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
 
 title_input= 'Hip Circumduction';
-left_data_input= par.left_circumduction(j,:);
-right_data_input= par.right_circumduction(j,:);
+healthy_data_input= par.left_circumduction(j,:);
+paretic_data_input= par.right_circumduction(j,:);
 ylabel_input= 'Distance from Hip (mm)';
 plot_number_input= 10;
-normal_plot(left_data_input,right_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
+normal_plot(healthy_data_input,paretic_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
 
 title_input= 'Toe Clearance';
-left_data_input= par.left_toe_clear(j,:);
-right_data_input= par.right_toe_clear(j,:);
+healthy_data_input= par.left_toe_clear(j,:);
+paretic_data_input= par.right_toe_clear(j,:);
 ylabel_input= 'Toe Height (mm)';
 plot_number_input= 11;
-normal_plot(left_data_input,right_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
+normal_plot(healthy_data_input,paretic_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
 
 title_input= 'Stance Force';
-left_data_input= par.left_force(j,:);
-right_data_input= par.right_force(j,:);
+healthy_data_input= par.left_force(j,:);
+paretic_data_input= par.right_force(j,:);
 ylabel_input= 'Avg Force (units)';
 plot_number_input= 12;
-normal_plot(left_data_input,right_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
+normal_plot(healthy_data_input,paretic_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
 
 title_input= 'GA Activation at Push Off';
-left_data_input= par.left_ga(j,:);
-right_data_input= par.right_ga(j,:);
+healthy_data_input= par.left_ga(j,:);
+paretic_data_input= par.right_ga(j,:);
 ylabel_input= 'Activation Level (%)';
 plot_number_input= 13;
-normal_plot(left_data_input,right_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
+normal_plot(healthy_data_input,paretic_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
 
 title_input= 'TA Activation during Swing';
-left_data_input= par.left_ta_activation(j,:);
-right_data_input= par.right_ta_activation(j,:);
+healthy_data_input= par.left_ta_activation(j,:);
+paretic_data_input= par.right_ta_activation(j,:);
 ylabel_input= 'Activation Level (%)';
 plot_number_input= 14;
-normal_plot(left_data_input,right_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
+normal_plot(healthy_data_input,paretic_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
 
 title_input= 'Hip Velocity during Swing';
-left_data_input= par.left_hip_velo(j,:);
-right_data_input= par.right_hip_velo(j,:);
+healthy_data_input= par.left_hip_velo(j,:);
+paretic_data_input= par.right_hip_velo(j,:);
 ylabel_input= 'Angular Velocity (deg/s)';
 plot_number_input= 15;
-normal_plot(left_data_input,right_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
+normal_plot(healthy_data_input,paretic_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
 
 title_input= 'Knee Velocity during Swing';
-left_data_input= par.left_knee_velo(j,:);
-right_data_input= par.right_knee_velo(j,:);
+healthy_data_input= par.left_knee_velo(j,:);
+paretic_data_input= par.right_knee_velo(j,:);
 ylabel_input= 'Angular Velocity (deg/s)';
 plot_number_input= 16;
-normal_plot(left_data_input,right_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
+normal_plot(healthy_data_input,paretic_data_input,trans(j,:),Len(j),title_input,ylabel_input,plot_number_input)
 %% BoxPlot
 close all
 clc
 
 % Setup Plot
-j= 6; % Subject Number
+j= 2; % Subject Number
 figure; set(gcf,'color','w','Position',[-1452 86 1440 723]); hold on;
 subplot(3,4,1); hold on;
-if paretic_side{j} == 'L'
-    main_title= sgtitle(['Subject ' num2str(j)  ' | \color[rgb]{0 .4471 .7647}Left Side Paretic \color{black}| ' '\color[rgb]{.8 .2078 .1451}Right Side Perturbed \color{black}| '  num2str(dur(j)/60) ' minutes | ' num2str(TS(j)) ' m/s']);
-else
-    main_title= sgtitle(['Subject ' num2str(j)  ' | \color[rgb]{.8 .2078 .1451}Right Side Paretic \color{black}| ' '\color[rgb]{0 .4471 .7647}Left Side Perturbed \color{black}| '  num2str(dur(j)/60) ' minutes | ' num2str(TS(j)) ' m/s']);
-end
+main_title= sgtitle(['Subject ' num2str(j)  ' | \color[rgb]{0 .4471 .7647} Perturbed Side \color{black}| ' '\color[rgb]{.8 .2078 .1451} Paretic Side \color{black}| '  num2str(dur(j)/60) ' minutes | ' num2str(TS(j)) ' m/s']);
 set(main_title,'FontWeight','bold','FontSize',22);
 
 title_input= 'Frozen Step Length';
-left_data_input= par.left_step_length(j,:);
-right_data_input= par.right_step_length(j,:);
+healthy_data_input= par.step_length_healthy(j,:);
+paretic_data_input= par.step_length_paretic(j,:);
 ylabel_input= 'Ankle to Ankle (mm)';
 plot_number_input= 1;
-box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
+box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
 
 title_input= 'Anterior Step Length';
-left_data_input= par.left_anterior(j,:);
-right_data_input= par.right_anterior(j,:);
+healthy_data_input= par.anterior_healthy(j,:);
+paretic_data_input= par.anterior_paretic(j,:);
 ylabel_input= 'CoM to Ankle (mm)';
 plot_number_input= 2;
-box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
+box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
 
 title_input= 'Stance Time';
 only_data_input= par.stance_diff(j,:);
@@ -733,66 +736,65 @@ plot_number_input= 3;
 single_box_whisker_plot(only_data_input,title_input,ylabel_input,plot_number_input)
 
 title_input= 'Stance Force';
-left_data_input= par.left_force(j,:);
-right_data_input= par.right_force(j,:);
+healthy_data_input= par.force_healthy(j,:);
+paretic_data_input= par.force_paretic(j,:);
 ylabel_input= 'Avg Force (units)';
 plot_number_input= 4;
-box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
+box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
 
 title_input= 'Average TA Activation';
-left_data_input= par.left_ta(j,:);
-right_data_input= par.right_ta(j,:);
+healthy_data_input= par.ta_healthy(j,:);
+paretic_data_input= par.ta_paretic(j,:);
 ylabel_input= 'Activation Level (%)';
 plot_number_input= 5;
-box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
+box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
 
 title_input= 'Average GA Activation';
-left_data_input= par.left_ga(j,:);
-right_data_input= par.right_ga(j,:);
+healthy_data_input= par.ga_healthy(j,:);
+paretic_data_input= par.ga_paretic(j,:);
 ylabel_input= 'Activation Level (%)';
 plot_number_input= 6;
-box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
+box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
 
 title_input= 'Average VA Activation';
-left_data_input= par.left_va(j,:);
-right_data_input= par.right_va(j,:);
+healthy_data_input= par.va_healthy(j,:);
+paretic_data_input= par.va_paretic(j,:);
 ylabel_input= 'Activation Level (%)';
 plot_number_input= 7;
-box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
+box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
 
 title_input= 'Average RF Activation';
-left_data_input= par.left_rf(j,:);
-right_data_input= par.right_rf(j,:);
+healthy_data_input= par.rf_healthy(j,:);
+paretic_data_input= par.rf_paretic(j,:);
 ylabel_input= 'Activation Level (%)';
 plot_number_input= 8;
-box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
+box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
 
 title_input= 'Average BF Activation';
-left_data_input= par.left_bf(j,:);
-right_data_input= par.right_bf(j,:);
+healthy_data_input= par.bf_healthy(j,:);
+paretic_data_input= par.bf_paretic(j,:);
 ylabel_input= 'Activation Level (%)';
 plot_number_input= 9;
-box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
+box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
 
 title_input= 'TA Activation during Swing';
-left_data_input= par.left_ta_activation(j,:);
-right_data_input= par.right_ta_activation(j,:);
+healthy_data_input= par.ta_swing_healthy(j,:);
+paretic_data_input= par.ta_swing_paretic(j,:);
 ylabel_input= 'Activation Level (%)';
 plot_number_input= 10;
-box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
+box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
 
 title_input= 'GA Activation at Push Off';
-left_data_input= par.left_ga(j,:);
-right_data_input= par.right_ga(j,:);
+healthy_data_input= par.ga_pushoff_healthy(j,:);
+paretic_data_input= par.ga_pushoff_paretic(j,:);
 ylabel_input= 'Activation Level (%)';
 plot_number_input= 11;
-box_whisker_plot(left_data_input,right_data_input,title_input,ylabel_input,plot_number_input)
+box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
 
 title_input= 'Center of Pressure';
 data_input= par.cop_path(j,:);
 plot_number_input= 12;
 cop_plot(data_input,title_input,plot_number_input)
-
 %% CoP Path
 close all
 span = 6000; % (frames) 60sec
@@ -847,12 +849,12 @@ box_data(1:SPAN,6)= nan;
 box_data(:,7)= only_data{3}(1:SPAN);
 box_data(1:SPAN,8)= nan; 
 box_data(:,9)= only_data{3}(end-SPAN+1:end);
- 
+
 colors = purple(1:3);
 
 subplot(3,4,subplot_number); hold on;
 plot([-100 100],[0 0],'LineWidth',1,'LineStyle','--','color',[.3 .3 .3],'HandleVisibility','off')
-boxplot(box_data)
+boxplot(box_data,'outliersize',4)
 set(findobj(gca,'type','line'),'linew',1)
 set(findobj(gca,'type','line'),'color','k');
 % set(findobj(gcf,'tag','Outliers'),'MarkerSize',25);
@@ -864,6 +866,26 @@ end
 set(h1,'MarkerEdgeColor','k');
 plot([2 2],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
 plot([6 6],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+
+signif= significance_test(only_data);
+ax= axis;
+y1= ax(4)*1.05;
+y2= ax(4)*1.25;
+axis([ax(1) ax(2) ax(3) ax(4)*1.5])
+if signif(1) == 1
+    plot([1 7],[y1 y1],'color',purple,'LineWidth',1)
+    text(mean([1 7]),mean([y1 y2]),'??','fontsize',8,'color',purple)
+elseif signif(1) == -1
+    plot([1 7],[y1 y1],'color',purple,'LineWidth',1)
+    text(mean([1 7]),mean([y1 y2]),'??','fontsize',8,'color',purple)
+end
+if signif(2) == -1
+    plot([1 9],[y2 y2],'color',purple,'LineWidth',1)
+    text(mean([1 9]),mean([y2 ax(4)*1.5]),'??','fontsize',8,'color',purple)
+elseif signif(2) == 1
+    plot([1 9],[y2 y2],'color',purple,'LineWidth',1)
+    text(mean([1 9]),mean([y2 ax(4)*1.5]),'??','fontsize',8,'color',purple)
+end
 
 xticks([])
 title(plot_title)
@@ -907,7 +929,7 @@ for i= 1:14
 end
 
 subplot(3,4,subplot_number); hold on;
-boxplot(box_data)
+boxplot(box_data,'outliersize',4)
 set(findobj(gca,'type','line'),'linew',1)
 set(findobj(gca,'type','line'),'color','k');
 % set(findobj(gcf,'tag','Outliers'),'MarkerSize',25);
@@ -922,6 +944,47 @@ plot([9 9],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','o
 xticks([])
 title(plot_title)
 ylabel(plot_ylabel)
+
+
+ax= axis;
+axis([ax(1) ax(2) ax(3) ax(4)*1.5])
+y1= ax(4)*1.05;
+y2= ax(4)*1.15;
+y3= ax(4)*1.25;
+y4= ax(4)*1.35;
+y5= ax(4)*1.45;
+
+signif= significance_test(left_data);
+if signif(1) == 1
+    plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
+    text(mean([1 10]),mean([y1 y2]),'??','fontsize',8,'color',blue)
+elseif signif(1) == -1
+    plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
+    text(mean([1 10]),mean([y1 y2]),'??','fontsize',8,'color',blue)
+end
+if signif(2) == -1
+    plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
+    text(mean([1 13]),mean([y2 y3]),'??','fontsize',8,'color',blue)
+elseif signif(2) == 1
+    plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
+    text(mean([1 13]),mean([y2 y3]),'??','fontsize',8,'color',blue)
+end
+
+signif= significance_test(right_data);
+if signif(1) == 1
+    plot([2 11],[y3 y3],'color',red,'LineWidth',1)
+    text(mean([2 11]),mean([y3 y4]),'??','fontsize',8,'color',red)
+elseif signif(1) == -1
+    plot([2 11],[y3 y3],'color',red,'LineWidth',1)
+    text(mean([2 11]),mean([y3 y4]),'??','fontsize',8,'color',red)
+end
+if signif(2) == -1
+    plot([2 14],[y4 y4],'color',red,'LineWidth',1)
+    text(mean([2 14]),mean([y4 y5]),'??','fontsize',8,'color',red)
+elseif signif(2) == 1
+    plot([2 14],[y4 y4],'color',red,'LineWidth',1)
+    text(mean([2 14]),mean([y4 y5]),'??','fontsize',8,'color',red)
+end
 
 end
 
@@ -949,35 +1012,36 @@ par3y= only_data{3}(:,2);
 par4y= only_data{4}(:,2);
 par5y= only_data{5}(:,2);
 
-par1xf= smooth(par1x,SPAN,'rloess');
-par2xf= smooth(par2x,SPAN,'rloess');
-par3xf= smooth(par3x,SPAN,'rloess');
-par4xf= smooth(par4x,SPAN,'rloess');
-par5xf= smooth(par5x,SPAN,'rloess');
-par1yf= smooth(par1y,SPAN,'rloess');
-par2yf= smooth(par2y,SPAN,'rloess');
-par3yf= smooth(par3y,SPAN,'rloess');
-par4yf= smooth(par4y,SPAN,'rloess');
-par5yf= smooth(par5y,SPAN,'rloess');
+par1xf= smooth(par1x);
+par2xf= smooth(par2x);
+par3xf= smooth(par3x);
+par4xf= smooth(par4x);
+par5xf= smooth(par5x);
+par1yf= smooth(par1y);
+par2yf= smooth(par2y);
+par3yf= smooth(par3y);
+par4yf= smooth(par4y);
+par5yf= smooth(par5y);
 
 colororder('default');
 
 subplot(3,4,subplot_number); hold on;
-% plot(par1xf,par1yf,'LineWidth',2)
+plot(par1xf,par1yf,'LineWidth',2)
 % plot(par2xf,par2yf,'LineWidth',2)
 % plot(par3xf,par3yf,'LineWidth',2)
-% plot(par4xf,par4yf,'LineWidth',2)
-% plot(par5xf,par5yf,'LineWidth',2)
-plot(par1x,par1y,'LineWidth',2)
-plot(par2x,par2y,'LineWidth',2)
-plot(par3x,par3y,'LineWidth',2)
-plot(par4x,par4y,'LineWidth',2)
-plot(par5x,par5y,'LineWidth',2)
+plot(par4xf,par4yf,'LineWidth',2)
+plot(par5xf,par5yf,'LineWidth',2)
+% plot(par1x,par1y,'LineWidth',2)
+% plot(par2x,par2y,'LineWidth',2)
+% plot(par3x,par3y,'LineWidth',2)
+% plot(par4x,par4y,'LineWidth',2)
+% plot(par5x,par5y,'LineWidth',2)
 axis equal
 axis manual
 plot([-1000 1000],[0 0],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
 plot([0 0],[-1000 1000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
-legend('Baseline','Early Adapt','Late Adapt','Early Obs','Late Obs','Position',[0.89855 0.23461 0.076389 0.11203])
+% legend('Baseline','Early Adapt','Late Adapt','Early Obs','Late Obs','Position',[0.90827 0.23599 0.076389 0.11203])
+legend('Baseline','Early Obs','Late Obs','Position',[0.90827 0.23599 0.076389 0.11203])
 title(plot_title)
 end
 
@@ -1222,4 +1286,18 @@ function P = InterX(L1,varargin)
     function u = D(x,y)
         u = bsxfun(@minus,x(:,1:end-1),y).*bsxfun(@minus,x(:,2:end),y);
     end
+end
+
+function h_output = significance_test(only_data)
+SPAN = 30;
+a = only_data{1}(end-SPAN+1:end);
+c1 = only_data{3}(1:SPAN);
+c2 = only_data{3}(end-SPAN+1:end);
+
+[~, h(1,1)] = ranksum(a,c1,'alpha',0.01,'tail','left');
+[~, h(1,2)] = ranksum(a,c2,'alpha',0.01,'tail','left');
+[~, h(2,1)] = ranksum(a,c1,'alpha',0.01,'tail','right');
+[~, h(2,2)] = ranksum(a,c2,'alpha',0.01,'tail','right');
+
+h_output= h(1,:)-h(2,:);
 end

@@ -11,12 +11,12 @@
 % FVESPA
 % Cut wrt. gait cycle
 
-for subject_number= 1:6
-    
+% for subject_number= 1:6
+subject_number= 6;   
+
 clearvars -except subject_number
 close all;
 clc
-
 
 dur= [10 12 12 10 12 12]*60; %s
 paretic_side= {'L' 'R' 'L' 'R' 'L' 'R'};
@@ -31,29 +31,6 @@ muscle_number= [4 10 10 10 10 10];
 %%%
 % 2 files will be added to the folder upon running this code: the marker
 % data & kinematic data in 1 table, & the emg data in another table
-
-% Description of the VST Data Columns:
-% Column 1:     Time stamp                                  (sec)
-% Column 2:     Treadmill Speed PWM Value                   (0-255)
-% Column 3:     Treadmill Speed                             (cm/s)
-% Column 4:     (Sent) Desired Position of Linear Track     (cm)
-% Column 5:     Current Position of Linear Track            (cm)
-% Column 6:     Treadmill's Inclination Angle               (deg)
-% Column 7:     Boolean value for experiment                (0/1)
-% Column 8:     Frame Number                                (integer)
-% Column 9:     X coordinate of Left Heel Marker            (mm)
-% Column 10:    Y coordinate of Left Heel Marker            (mm)
-% Column 11:    Z coordinate of Left Heel Marker            (mm)
-% Column 12:    Gait Cycle Counter                          (integer)
-% Column 13:    Frame of Last Heel-Strike Event             (integer)
-% Column 14:    Desired Stiffness of Treadmill              (N/m)
-% Column 15:    (Raw) Desired Position of Linear Track      (cm)
-
-% Column 4 has the values of the desired position of the linear track that
-% were actually sent to the linear track. Column 15 has the raw value of
-% the desired position of the linear track as they are calculated. However,
-% if the values are less than 0 or higher than 38, e.g. Inf, they won't be
-% sent to the linear track. Column 15 is for debugging purposes.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%0
 %% Load Data
@@ -71,10 +48,7 @@ traj_data = readtable([folder '/' 'traj.csv'],'HeaderLines',4);
 kin_data= readtable([folder '/' 'kin.csv'],'HeaderLines',4);
 kin_data= kin_data(:,3:end);
 emg_data= readtable([folder '/' 'emg.csv'],'HeaderLines',4);
-fm_data= readtable([folder '/' 'fm.txt']);
-if size(fm_data,2)>8452
-    fm_data(:,8453:end)= [];
-end
+fm_data= load([folder '/fm.txt']);
 hr_data = readtable([folder '/' 'hr.csv'],'HeaderLines',3);
 hr_data = hr_data{1:dur(subject_number),3};
 hr_data = repelem(hr_data,100);
@@ -85,48 +59,125 @@ data.Properties.VariableNames= labels;
 emg_data.Properties.VariableNames= emg_labels(1:muscle_number(subject_number)+2);
 
 clear kin_data traj_data
-%% Truncate Data
+%% Truncate Vicon & EMG Data
 data= data(1:dur(subject_number)*100,:);
 data= addvars(data,hr_data,'NewVariableNames','hr');
 emg_data= emg_data(1:dur(subject_number)*2000,:);
-fm_time= fm_data(:,1);
-t_end= fm_time{1,1}+dur(subject_number)*1000;
-[ind,~]= find(fm_time{:,1}>t_end);
-fm_data= fm_data(1:ind(1),:);
 frame_total= height(data);
 
-clear t_end ind fm_time hr_data
-%% FVESPA & Toe Off
+% clear t_end ind fm_time hr_data
+%% Heel Strike Detection
 close all
-clear lhs rhs lto rto
+clear lhs rhs lto rto lhs_vespa rhs_vespa lhs_fm rhs_fm
+
+% Heel strike using VESPA
 threshold= [0 5 6.005 0 10 0];
-lhs(:,1)= fvespa(data.lhee_z,data.lhee_y,data.frame,threshold(subject_number));
-rhs(:,1)= fvespa(data.rhee_z,data.rhee_y,data.frame,threshold(subject_number));
-figure; subplot(1,2,1); plot(diff(lhs)); subplot(1,2,2); plot(diff(rhs));
-[~,lto(:,1)]= findpeaks(-data.ltoe_y,'MinPeakWidth',0.65,'MinPeakDistance',30);
-[~,rto(:,1)]= findpeaks(-data.rtoe_y,'MinPeakWidth',20,'MinPeakDistance',30);
-% alert;
-% return
+lhs_vespa(:,1)= fvespa(data.lhee_z,data.lhee_y,data.frame,threshold(subject_number));
+rhs_vespa(:,1)= fvespa(data.rhee_z,data.rhee_y,data.frame,threshold(subject_number));
+
 if subject_number==1
-    lhs(1)= 1;
-    rhs(1)= 1;
-elseif subject_number==2
-    rhs(1)= 1;
-elseif subject_number==3
-    lhs(1)= 1;
-    rhs(1)= 1;
-elseif subject_number==4
-    lhs(1)= 1;
-    rhs(1)= 1;
-elseif subject_number==5
-    rhs(1)= 1;
-elseif subject_number==6
-    lhs(1)= 1;
-    rhs(1)= 1; 
+    lhs_vespa(1)= 1;
+    rhs_vespa(1)= 1;
 end
 
-lcontact= 1;
-rcontact= 1;
+% Heel strike using force mats
+fm_data_shifted= fm_data(1:end,:);
+fm_time= fm_data_shifted(:,1)-fm_data_shifted(1,1);
+t_end= dur(subject_number)*1000;
+ind= find(min(abs(fm_time - t_end)) == abs(fm_time - t_end)); % Find closest value to end
+fm_raw_shifted= fm_data_shifted(:,5:end);
+
+fm_data_truncated= fm_raw_shifted(1:ind,:);
+fm_time_truncated= fm_time(1:ind);
+
+fm_data_upsampled= interp1(fm_time_truncated,fm_data_truncated,linspace(0,fm_time_truncated(end),frame_total));
+for i= 1:frame_total
+    fm_grid{i,1}= reshape(fm_data_upsampled(i,:),96,88);
+    fm_grid_left{i,1}= fm_grid{i}(:,1:44);
+    fm_grid_right{i,1}= fm_grid{i}(:,45:88);
+end
+
+for i= 1:frame_total
+    force_left(i,1)= sum(fm_grid_left{i},'all');
+    force_right(i,1)= sum(fm_grid_right{i},'all');
+end
+
+clear ind lhs_fm
+signal= smooth(force_left,10);
+[~, ind(:,1)]= findpeaks(-signal,'MinPeakHeight',-350,'MinPeakWidth',0.65,'MinPeakDistance',100);
+% figure; hold on;
+% plot(signal)
+% plot(ind,signal(ind),'rx')
+threshold= 400;
+for i= 1:length(ind)
+    temp= ind(i);
+    while signal(temp)<threshold && temp < frame_total
+        temp= temp+1;
+    end
+    lhs_fm(i,1)= temp;
+end
+
+clear ind rhs_fm
+signal= smooth(force_right,10);
+[~, ind(:,1)]= findpeaks(-signal,'MinPeakHeight',-350,'MinPeakWidth',0.65,'MinPeakDistance',100);
+% figure; hold on;
+% plot(signal)
+% plot(ind,signal(ind),'rx')
+threshold= 400;
+for i= 1:length(ind)
+    temp= ind(i);
+    while signal(temp)<threshold && temp < frame_total
+        temp= temp+1;
+    end
+    rhs_fm(i,1)= temp;
+end
+if subject_number == 3
+    rhs_fm(221)= 36470;
+end
+
+figure; set(gcf,'color','w'); hold on;
+subplot(2,2,1); hold on;
+plot(data.lhee_y);
+plot(lhs_vespa,data.lhee_y(lhs_vespa),'rx');
+plot(lhs_fm,data.lhee_y(lhs_fm),'gx');
+legend('Sagittal Postion','F-VESPA','Force Mats')
+subplot(2,2,2); hold on;
+plot(data.rhee_y);
+plot(rhs_vespa,data.rhee_y(rhs_vespa),'rx');
+plot(rhs_fm,data.rhee_y(rhs_fm),'gx');
+legend('Sagittal Postion','F-VESPA','Force Mats')
+subplot(2,2,3); hold on;
+plot(diff(lhs_fm))
+subplot(2,2,4); hold on;
+plot(diff(rhs_fm))
+return
+
+lhs= lhs_fm;
+rhs= rhs_fm;
+
+%% Toe Off Detection
+[~,lto(:,1)]= findpeaks(-data.ltoe_y,'MinPeakWidth',0.65,'MinPeakDistance',30);
+[~,rto(:,1)]= findpeaks(-data.rtoe_y,'MinPeakWidth',20,'MinPeakDistance',30);
+%% FVESPA & Toe Off
+close all
+% if subject_number==1
+%     lhs(1)= 1;
+%     rhs(1)= 1;
+% elseif subject_number==2
+%     rhs(1)= 1;
+% elseif subject_number==3
+%     lhs(1)= 1;
+%     rhs(1)= 1;
+% elseif subject_number==4
+%     lhs(1)= 1;
+%     rhs(1)= 1;
+% elseif subject_number==5
+%     rhs(1)= 1;
+% elseif subject_number==6
+%     lhs(1)= 1;
+%     rhs(1)= 1; 
+% end
+
 hs_counter = 1;
 to_counter = 1;
 state= 1;
@@ -149,9 +200,12 @@ for i= 2:frame_total
     end
     lcontact(i,1) = state;
 end
+lcontact(1)= lcontact(2);
+
+% rhs(1)= [];
 hs_counter = 1;
 to_counter = 1;
-state= 1;
+state= 0;
 rcontact= zeros(frame_total,1);
 for i= 2:frame_total
     if any(rhs==i)
@@ -171,6 +225,8 @@ for i= 2:frame_total
     end
     rcontact(i,1) = state;
 end
+rcontact(1)= rcontact(2);
+
 data= addvars(data,lcontact,rcontact,'NewVariableNames',{'lcontact','rcontact'});
 
 %% Process EMGs and add to data
@@ -231,16 +287,6 @@ else
 end
 %% Process Forcemats (add gap) & Add to data
 % Calibrate & Upsample Forcemats
-C= 0.1729; % scales forcemats to N 
-temp= fm_data{:,5:end}.*C;
-fm_data_upsampled= interp1(1:length(temp),temp,linspace(1,length(temp),frame_total));
-
-for i= 1:frame_total
-    fm_grid{i,1}= reshape(fm_data_upsampled(i,:),96,88);
-    fm_grid_left{i,1}= fm_grid{i}(:,1:44);
-    fm_grid_right{i,1}= fm_grid{i}(:,45:88);
-end
-
 c= 10.21; % distance between cells in mm
 x_1_offset= -7.4; % x offset of left force mat origin in Vicon frame
 y_1_offset= -54.43; % y offset of left force mat origin in Vicon frame
@@ -286,8 +332,7 @@ for i= 1:frame_total
     fm_grid{i}= [fm_grid_left{i} fm_grid_right{i}];
 end
 
-%% CoP Calcs
-% calculate new total cop
+% calculate new cop
 for t= 1:frame_total
     cop_x = 0;
     cop_y = 0;
@@ -341,9 +386,9 @@ data= addvars(data,fm_add(:,1),fm_add(:,2),fm_add(:,3),fm_add(:,4),fm_add(:,5),f
 clear cop_x cop_y total_force COP_x COP_y fm_force fm_raw fm_grid_left fm_grid_right fm_data_upsampled fm_data
 %% Export
 save([folder '/' output_file_name],'data')
-save([folder '/fm_' output_file_name],'fm_grid')
+save([folder '/fm_' output_file_name],'fm_grid','-v7.3')
 subject_number
-end
+% end
 %% Combine data into one .mat file
 clear all
 close all
@@ -372,7 +417,7 @@ for i= 1:6
 end
 
 fm_data= temp;
-clear Data i;
-save('Data/fm_data.mat')
+clear Data i temp
+save('Data/fm_data.mat','-v7.3')
 
 alert;

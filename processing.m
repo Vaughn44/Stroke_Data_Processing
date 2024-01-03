@@ -109,7 +109,7 @@ for j= 1:6
         h2t= toe-heel;
         temp1= atan2d(k2a(1),k2a(2));
         temp2= atan2d(h2t(1),h2t(2));
-        lknee_redo(i,1)= 90+temp1-temp2;
+        lankle_redo(i,1)= 90+temp1-temp2;
 
         knee= [data{j}.('rkne_y')(i) data{j}.('rkne_z')(i)];
         ankle= [data{j}.('rank_y')(i) data{j}.('rank_z')(i)];
@@ -119,7 +119,7 @@ for j= 1:6
         h2t= toe-heel;
         temp1= atan2d(k2a(1),k2a(2));
         temp2= atan2d(h2t(1),h2t(2));
-        rknee_redo(i,1)= 90+temp1-temp2;
+        rankle_redo(i,1)= 90+temp1-temp2;
     end
 end
 %% Assign Gait Cycles
@@ -169,6 +169,7 @@ for k = 1:3
         end
     end
 end
+data_gc{3,3}(213)= [];
 %% Normalize wrt Time
 
 % Baseline
@@ -199,8 +200,8 @@ for j= 1:6
         temp= array2table(temp);
         temp.Properties.VariableNames= labels;
         data_gc_normalized{j,3}{i,1}= temp;
-    end 
-end 
+    end
+end
 %% Outlier Detection
 for j= 1:6
     for i=1:length(data_gc_normalized{j,1})
@@ -709,7 +710,7 @@ close all
 clc
 
 % Setup Plot
-j= 1; % Subject Number
+j= 6; % Subject Number
 figure; set(gcf,'color','w','Position',[-1452 86 1440 723]); hold on;
 subplot(3,4,1); hold on;
 main_title= sgtitle(['Subject ' num2str(j)  ' | \color[rgb]{0 .4471 .7647} Perturbed Side \color{black}| ' '\color[rgb]{.8 .2078 .1451} Paretic Side \color{black}| '  num2str(dur(j)/60) ' minutes | ' num2str(TS(j)) ' m/s']);
@@ -756,26 +757,26 @@ ylabel_input= 'Activation Level (%)';
 plot_number_input= 6;
 box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
 
-% title_input= 'Average VA Activation';
-% healthy_data_input= par.va_healthy(j,:);
-% paretic_data_input= par.va_paretic(j,:);
-% ylabel_input= 'Activation Level (%)';
-% plot_number_input= 7;
-% box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
-% 
-% title_input= 'Average RF Activation';
-% healthy_data_input= par.rf_healthy(j,:);
-% paretic_data_input= par.rf_paretic(j,:);
-% ylabel_input= 'Activation Level (%)';
-% plot_number_input= 8;
-% box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
-% 
-% title_input= 'Average BF Activation';
-% healthy_data_input= par.bf_healthy(j,:);
-% paretic_data_input= par.bf_paretic(j,:);
-% ylabel_input= 'Activation Level (%)';
-% plot_number_input= 9;
-% box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
+title_input= 'Average VA Activation';
+healthy_data_input= par.va_healthy(j,:);
+paretic_data_input= par.va_paretic(j,:);
+ylabel_input= 'Activation Level (%)';
+plot_number_input= 7;
+box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'Average RF Activation';
+healthy_data_input= par.rf_healthy(j,:);
+paretic_data_input= par.rf_paretic(j,:);
+ylabel_input= 'Activation Level (%)';
+plot_number_input= 8;
+box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
+
+title_input= 'Average BF Activation';
+healthy_data_input= par.bf_healthy(j,:);
+paretic_data_input= par.bf_paretic(j,:);
+ylabel_input= 'Activation Level (%)';
+plot_number_input= 9;
+box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
 
 title_input= 'TA Activation during Swing';
 healthy_data_input= par.ta_swing_healthy(j,:);
@@ -795,6 +796,8 @@ title_input= 'Center of Pressure';
 data_input= par.cop_path(j,:);
 plot_number_input= 12;
 cop_plot(data_input,title_input,plot_number_input)
+
+saveas(gcf,['Subject' num2str(j) '.png'])
 %% Average BoxPlot
 close all
 clc
@@ -1152,17 +1155,17 @@ y2= ax(4)*1.25;
 axis([ax(1) ax(2) ax(3) ax(4)*1.5])
 if signif(1) == 1
     plot([1 7],[y1 y1],'color',purple,'LineWidth',1)
-    text(mean([1 7]),mean([y1 y2]),'??','fontsize',8,'color',purple)
+    text(mean([1 7]),mean([y1 y2]),'/\','fontsize',8,'color',purple)
 elseif signif(1) == -1
     plot([1 7],[y1 y1],'color',purple,'LineWidth',1)
-    text(mean([1 7]),mean([y1 y2]),'??','fontsize',8,'color',purple)
+    text(mean([1 7]),mean([y1 y2]),'\/','fontsize',8,'color',purple)
 end
 if signif(2) == -1
     plot([1 9],[y2 y2],'color',purple,'LineWidth',1)
-    text(mean([1 9]),mean([y2 ax(4)*1.5]),'??','fontsize',8,'color',purple)
+    text(mean([1 9]),mean([y2 ax(4)*1.5]),'\/','fontsize',8,'color',purple)
 elseif signif(2) == 1
     plot([1 9],[y2 y2],'color',purple,'LineWidth',1)
-    text(mean([1 9]),mean([y2 ax(4)*1.5]),'??','fontsize',8,'color',purple)
+    text(mean([1 9]),mean([y2 ax(4)*1.5]),'/\','fontsize',8,'color',purple)
 end
 
 xticks([])
@@ -1217,8 +1220,8 @@ for j=1:length(h)
     patch(get(h(j),'XData'),get(h(j),'YData'),colors(j,:),'FaceAlpha',.5);
 end
 set(h1,'MarkerEdgeColor','k');
-plot([3 3],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
-plot([9 9],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+plot([3 3],[-20000 20000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+plot([9 9],[-20000 20000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
 xticks([])
 title(plot_title)
 ylabel(plot_ylabel)
@@ -1235,33 +1238,33 @@ y5= ax(4)*1.45;
 signif= significance_test(left_data);
 if signif(1) == 1
     plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
-    text(mean([1 10]),mean([y1 y2]),'??','fontsize',8,'color',blue)
+    text(mean([1 10]),mean([y1 y2]),'/\','fontsize',8,'color',blue)
 elseif signif(1) == -1
     plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
-    text(mean([1 10]),mean([y1 y2]),'??','fontsize',8,'color',blue)
+    text(mean([1 10]),mean([y1 y2]),'\/','fontsize',8,'color',blue)
 end
 if signif(2) == -1
     plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
-    text(mean([1 13]),mean([y2 y3]),'??','fontsize',8,'color',blue)
+    text(mean([1 13]),mean([y2 y3]),'\/','fontsize',8,'color',blue)
 elseif signif(2) == 1
     plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
-    text(mean([1 13]),mean([y2 y3]),'??','fontsize',8,'color',blue)
+    text(mean([1 13]),mean([y2 y3]),'/\','fontsize',8,'color',blue)
 end
 
 signif= significance_test(right_data);
 if signif(1) == 1
     plot([2 11],[y3 y3],'color',red,'LineWidth',1)
-    text(mean([2 11]),mean([y3 y4]),'??','fontsize',8,'color',red)
+    text(mean([2 11]),mean([y3 y4]),'/\','fontsize',8,'color',red)
 elseif signif(1) == -1
     plot([2 11],[y3 y3],'color',red,'LineWidth',1)
-    text(mean([2 11]),mean([y3 y4]),'??','fontsize',8,'color',red)
+    text(mean([2 11]),mean([y3 y4]),'\/','fontsize',8,'color',red)
 end
 if signif(2) == -1
     plot([2 14],[y4 y4],'color',red,'LineWidth',1)
-    text(mean([2 14]),mean([y4 y5]),'??','fontsize',8,'color',red)
+    text(mean([2 14]),mean([y4 y5]),'\/','fontsize',8,'color',red)
 elseif signif(2) == 1
     plot([2 14],[y4 y4],'color',red,'LineWidth',1)
-    text(mean([2 14]),mean([y4 y5]),'??','fontsize',8,'color',red)
+    text(mean([2 14]),mean([y4 y5]),'/\','fontsize',8,'color',red)
 end
 
 end

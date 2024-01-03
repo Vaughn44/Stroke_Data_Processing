@@ -12,7 +12,7 @@
 % Cut wrt. gait cycle
 
 % for subject_number= 1:6
-subject_number= 6;   
+subject_number= 1;   
 
 clearvars -except subject_number
 close all;
@@ -384,6 +384,17 @@ end
 fm_add= [COP_x COP_y fm_force COP_x_left COP_y_left fm_force_left COP_x_right COP_y_right fm_force_right];
 data= addvars(data,fm_add(:,1),fm_add(:,2),fm_add(:,3),fm_add(:,4),fm_add(:,5),fm_add(:,6),fm_add(:,7),fm_add(:,8),fm_add(:,9),'NewVariableNames',{'cop_x','cop_y','force','cop_x_left','cop_y_left','force_left','cop_x_right','cop_y_right','force_right'});
 clear cop_x cop_y total_force COP_x COP_y fm_force fm_raw fm_grid_left fm_grid_right fm_data_upsampled fm_data
+%% Check for Forcemat Saturation
+for i= 1:length(fm_grid)
+    max_force(i,1)= max(fm_grid{i},[],'all');
+end
+figure; set(gcf,'color','w'); hold on;
+plot(max_force)
+plot([0 length(fm_grid)],[255 255],'-r','LineWidth',2)
+legend('Max Value','Saturation Value')
+xlabel('Time Steps')
+ylabel('Cell Value')
+title(['Saturation Check (Subject ' num2str(subject_number) ')'])
 %% Export
 save([folder '/' output_file_name],'data')
 save([folder '/fm_' output_file_name],'fm_grid','-v7.3')

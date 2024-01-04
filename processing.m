@@ -16,9 +16,7 @@
 % - Push Off Force
 % - Knee Angle at HS
 % - GA Push Off Activation
-% - TA Swing Activation
-
-% 
+% - TA Swing Activation 
 %% Import Data & Setup
 clear all
 close all
@@ -919,6 +917,15 @@ k= 20;
 figure;
 % plot(cop_com(:,1),cop_com(:,2))
 plot(movmean(cop_com(:,1),20),movmean(cop_com(:,2),20))
+%% Final Figures
+% -- RESULTS -- 
+% Step Length & Anterior Average - Box & Whisker
+% Stance Symmetry Average - Box & Whisker
+% Average Muscle Activty for all 5 muscles - Box & Whisker
+% Push Off Force Average - Box & Whisker
+% 2 Representative (Good & Bad) CoP Path Plot
+% -- DISCUSSION --
+
 %% Functions
 function avg_single_box_whisker_plot(parameter_of_interest,plot_title,plot_ylabel,subplot_number)
 blue= [0,114/255,195/255,1];

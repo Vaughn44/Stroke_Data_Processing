@@ -5,9 +5,9 @@ clc
 % Import Data
 fm1= load("Data\Saturation Test\Saturation.txt");
 fm2= load("Data\Saturation Test\NoSaturation.txt");
-traj1 = readtable("Data\Saturation Test\Saturation.csv",'NumHeaderLines',4);
-traj2= readtable("Data\Saturation Test\NoSaturation.csv","NumHeaderLines",4);
-
+traj1 = readtable('Data/Saturation Test/Saturation.csv','HeaderLines',4);
+traj2= readtable('Data/Saturation Test/NoSaturation.csv','HeaderLines',4);
+%%
 labels= {'frame','subframe','lasi_x','lasi_y','lasi_z','rasi_x','rasi_y','rasi_z','lpsi_x','lpsi_y','lpsi_z','rpsi_x','rpsi_y','rpsi_z','lthia_x','lthia_y','lthia_z','lthi_x','lthi_y','lthi_z','lkne_x','lkne_y','lkne_z','ltiba_x','ltiba_y','ltiba_z','ltib_x','ltib_y','ltib_z','lank_x','lank_y','lank_z','lhee_x','lhee_y','lhee_z','ltoe_x','ltoe_y','ltoe_z','rthia_x','rthia_y','rthia_z','rthi_x','rthi_y','rthi_z','rkne_x','rkne_y','rkne_z','rtiba_x','rtiba_y','rtiba_z','rtib_x','rtib_y','rtib_z','rank_x','rank_y','rank_z','rhee_x','rhee_y','rhee_z','rtoe_x','rtoe_y','rtoe_z'};
 traj1.Properties.VariableNames= labels;
 traj2.Properties.VariableNames= labels;
@@ -71,7 +71,7 @@ plot(left_grf(:,2),'LineWidth',2)
 legend('Scaled Saturated','Unsaturated')
 ylabel('Force Units')
 xlabel('Percent Gait Cycle')
-return
+
 % Average CoP Data
 for j= 1:2
     temp_x= [];
@@ -93,7 +93,53 @@ legend('Saturated','Unsaturated')
 ylabel('Ant/Post')
 xlabel('Med/Lat')
 
+% Plot all CoP
+figure; set(gcf,'color','w'); hold on;
+for i= 1:30
+    plot(data_gc_normalized{1}{end-i+1}.cop_x,data_gc_normalized{1}{end-i+1}.cop_y,'b')
+end
+for i= 1:30
+    plot(data_gc_normalized{2}{end-i+1}.cop_x,data_gc_normalized{2}{end-i+1}.cop_y,'r')
+end
 
+% Average Ankle Position
+for j= 1:2
+    temp_lx= [];
+    temp_ly= [];
+    temp_rx= [];
+    temp_ry= [];
+    for i= 1:30
+        temp_lx= [temp_lx data_gc_normalized{j}{end-i+1}.lank_x];
+        temp_ly= [temp_ly data_gc_normalized{j}{end-i+1}.lank_y];
+        temp_rx= [temp_rx data_gc_normalized{j}{end-i+1}.rank_x];
+        temp_ry= [temp_ry data_gc_normalized{j}{end-i+1}.rank_y];
+    end
+    lank_x(:,j)= mean(temp_lx,2);
+    lank_y(:,j)= mean(temp_ly,2);
+    rank_x(:,j)= mean(temp_rx,2);
+    rank_y(:,j)= mean(temp_ry,2);
+end
+
+% Plot Average Ankle Pos
+figure; set(gcf,'color','w'); hold on;
+plot(lank_x(:,1),lank_y(:,1),'b','LineWidth',2)
+plot(rank_x(:,1),rank_y(:,1),'b','LineWidth',2)
+plot(lank_x(:,2),lank_y(:,2),'r','LineWidth',2)
+plot(rank_x(:,2),rank_y(:,2),'r','LineWidth',2)
+legend('Saturated','Saturated','Unsaturated','Unsaturated')
+ylabel('Ant/Post')
+xlabel('Med/Lat')
+
+% Plot ankle positions
+figure; set(gcf,'color','w'); hold on;
+for i= 1:30
+    plot(data_gc_normalized{1}{end-i+1}.lank_x,data_gc_normalized{1}{end-i+1}.lank_y,'b')
+    plot(data_gc_normalized{1}{end-i+1}.rank_x,data_gc_normalized{1}{end-i+1}.rank_y,'b')
+end
+for i= 1:30
+    plot(data_gc_normalized{2}{end-i+1}.lank_x,data_gc_normalized{2}{end-i+1}.lank_y,'r')
+    plot(data_gc_normalized{2}{end-i+1}.rank_x,data_gc_normalized{2}{end-i+1}.rank_y,'r')
+end
 
 %% Fucntions
 function [data_new, fm_grid, lhs, rhs, lto, rto]= process_force_mats(traj_data,fm_data)

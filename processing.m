@@ -917,14 +917,1059 @@ k= 20;
 figure;
 % plot(cop_com(:,1),cop_com(:,2))
 plot(movmean(cop_com(:,1),20),movmean(cop_com(:,2),20))
-%% Final Figures
-% -- RESULTS -- 
-% Step Length & Anterior Average - Box & Whisker
-% Stance Symmetry Average - Box & Whisker
+%% **** FINAL FIGURES ****
+blue= [0,114/255,195/255,1];
+red= [204/255,53/255,37/255,1];
+bluet= [0,114/255,195/255,.1];
+redt= [204/255,53/255,37/255,.1];
+bluem= [0,114/255,195/255];
+redm= [204/255,53/255,37/255];
+purple= [163/255 41/255 214/255 1];
+purplet= [163/255 41/255 214/255 .1];
+purplem= [163/255 41/255 214/255];
+SPAN= 30;
+%% RESULTS AVERAGE
+%% Step Length & Anterior Average - Box & Whisker
+% Step Length
+plot_title= 'Step Length';
+healthy_data_input= par.step_length_healthy;
+paretic_data_input= par.step_length_paretic;
+plot_ylabel= 'Ankle to Ankle (mm)';
+
+h_poi= healthy_data_input;
+for j= 1:6
+    h_temp_a(:,j)= h_poi{j,1}(end-SPAN+1:end);
+    h_temp_b1(:,j)= h_poi{j,2}(1:SPAN);
+    h_temp_b2(:,j)= h_poi{j,2}(end-SPAN+1:end);
+    h_temp_c1(:,j)= h_poi{j,3}(1:SPAN);
+    h_temp_c2(:,j)= h_poi{j,3}(end-SPAN+1:end);
+end
+
+p_poi= paretic_data_input;
+for j= 1:6
+    p_temp_a(:,j)= p_poi{j,1}(end-SPAN+1:end);
+    p_temp_b1(:,j)= p_poi{j,2}(1:SPAN);
+    p_temp_b2(:,j)= p_poi{j,2}(end-SPAN+1:end);
+    p_temp_c1(:,j)= p_poi{j,3}(1:SPAN);
+    p_temp_c2(:,j)= p_poi{j,3}(end-SPAN+1:end);
+end
+
+box_data= [];
+box_data(:,1)= mean(h_temp_a,2);
+box_data(:,2)= mean(p_temp_a,2);
+box_data(1:SPAN,3)= nan; 
+box_data(:,4)= mean(h_temp_b1,2);
+box_data(:,5)= mean(p_temp_b1,2);
+box_data(1:SPAN,6)= nan; 
+box_data(:,7)= mean(h_temp_b2,2);
+box_data(:,8)= mean(p_temp_b2,2);
+box_data(1:SPAN,9)= nan; 
+box_data(:,10)= mean(h_temp_c1,2);
+box_data(:,11)= mean(p_temp_c1,2);
+box_data(1:SPAN,12)= nan; 
+box_data(:,13)= mean(h_temp_c2,2);
+box_data(:,14)= mean(p_temp_c2,2);
+
+healthy_poi= [box_data(:,1) box_data(:,4) box_data(:,7) box_data(:,10) box_data(:,13)];
+paretic_poi= [box_data(:,2) box_data(:,5) box_data(:,8) box_data(:,11) box_data(:,14)];
+
+for i= 1:14
+    if ismember(i,[1 4 7 10 13])
+        colors(i,:) = red(1:3);
+    elseif ismember(i,[2 5 8 11 14])
+        colors(i,:) = blue(1:3);
+    end
+end
+
+figure; set(gcf,'color','w','position',[325 425 959 345]); hold on;
+subplot(1,2,1); hold on;
+boxplot(box_data,'outliersize',4)
+set(findobj(gca,'type','line'),'linew',1)
+set(findobj(gca,'type','line'),'color','k');
+h = findobj(gca,'Tag','Box');
+h1= findobj(gca,'Tag','Outliers');
+for j=1:length(h)
+    patch(get(h(j),'XData'),get(h(j),'YData'),colors(j,:),'FaceAlpha',.5);
+end
+set(h1,'MarkerEdgeColor','k');
+plot([3 3],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+plot([9 9],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+xticks([])
+title(plot_title)
+ylabel(plot_ylabel)
+xlabel('Baseline         Adaptation              Observation      ')
+
+inc= 0.05;
+ax= axis;
+axis([ax(1) ax(2) ax(3) (ax(4)-ax(3))*(1+inc*6)+ax(3)])
+y1= (ax(4)-ax(3))*(1+inc*1)+ax(3); 
+y2= (ax(4)-ax(3))*(1+inc*2)+ax(3);
+y3= (ax(4)-ax(3))*(1+inc*3)+ax(3);
+y4= (ax(4)-ax(3))*(1+inc*4)+ax(3);
+y5= (ax(4)-ax(3))*(1+inc*5)+ax(3);
+
+signif= significance_test_average(healthy_poi);
+if signif(1) == 1
+    plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
+    text(mean([1 10]),mean([y1 y2]),'\boldmath$\star \uparrow$','fontsize',8,'color','interpreter','latex')
+elseif signif(1) == -1
+    plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
+    text(mean([1 10]),mean([y1 y2]),'\boldmath$\star \downarrow$','fontsize',8,'color',blue,'interpreter','latex')
+end
+if signif(2) == -1
+    plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
+    text(mean([1 13]),mean([y2 y3]),'\boldmath$\star \downarrow$','fontsize',8,'color',blue,'interpreter','latex')
+elseif signif(2) == 1
+    plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
+    text(mean([1 13]),mean([y2 y3]),'\boldmath$\star \uparrow$','fontsize',8,'color',blue,'interpreter','latex')
+end
+
+signif= significance_test_average(paretic_poi);
+if signif(1) == 1
+    plot([2 11],[y3 y3],'color',red,'LineWidth',1)
+    text(mean([2 11]),mean([y3 y4]),'\boldmath$\star \uparrow$','fontsize',8,'color',red,'interpreter','latex')
+elseif signif(1) == -1
+    plot([2 11],[y3 y3],'color',red,'LineWidth',1)
+    text(mean([2 11]),mean([y3 y4]),'\boldmath$\star \downarrow$','fontsize',8,'color',red,'interpreter','latex')
+end
+if signif(2) == -1
+    plot([2 14],[y4 y4],'color',red,'LineWidth',1)
+    text(mean([2 14]),mean([y4 y5]),'\boldmath$\star \downarrow$','fontsize',8,'color',red,'interpreter','latex')
+elseif signif(2) == 1
+    plot([2 14],[y4 y4],'color',red,'LineWidth',1)
+    text(mean([2 14]),mean([y4 y5]),'\boldmath$\star \uparrow$','fontsize',8,'color',red,'interpreter','latex')
+end
+
+% Anterior Step Length
+plot_title= 'Anterior Step Length';
+healthy_data_input= par.anterior_healthy;
+paretic_data_input= par.anterior_paretic;
+plot_ylabel= 'CoM to Ankle (mm)';
+
+h_poi= healthy_data_input;
+for j= 1:6
+    h_temp_a(:,j)= h_poi{j,1}(end-SPAN+1:end);
+    h_temp_b1(:,j)= h_poi{j,2}(1:SPAN);
+    h_temp_b2(:,j)= h_poi{j,2}(end-SPAN+1:end);
+    h_temp_c1(:,j)= h_poi{j,3}(1:SPAN);
+    h_temp_c2(:,j)= h_poi{j,3}(end-SPAN+1:end);
+end
+
+p_poi= paretic_data_input;
+for j= 1:6
+    p_temp_a(:,j)= p_poi{j,1}(end-SPAN+1:end);
+    p_temp_b1(:,j)= p_poi{j,2}(1:SPAN);
+    p_temp_b2(:,j)= p_poi{j,2}(end-SPAN+1:end);
+    p_temp_c1(:,j)= p_poi{j,3}(1:SPAN);
+    p_temp_c2(:,j)= p_poi{j,3}(end-SPAN+1:end);
+end
+
+box_data= [];
+box_data(:,1)= mean(h_temp_a,2);
+box_data(:,2)= mean(p_temp_a,2);
+box_data(1:SPAN,3)= nan; 
+box_data(:,4)= mean(h_temp_b1,2);
+box_data(:,5)= mean(p_temp_b1,2);
+box_data(1:SPAN,6)= nan; 
+box_data(:,7)= mean(h_temp_b2,2);
+box_data(:,8)= mean(p_temp_b2,2);
+box_data(1:SPAN,9)= nan; 
+box_data(:,10)= mean(h_temp_c1,2);
+box_data(:,11)= mean(p_temp_c1,2);
+box_data(1:SPAN,12)= nan; 
+box_data(:,13)= mean(h_temp_c2,2);
+box_data(:,14)= mean(p_temp_c2,2);
+
+healthy_poi= [box_data(:,1) box_data(:,4) box_data(:,7) box_data(:,10) box_data(:,13)];
+paretic_poi= [box_data(:,2) box_data(:,5) box_data(:,8) box_data(:,11) box_data(:,14)];
+
+for i= 1:14
+    if ismember(i,[1 4 7 10 13])
+        colors(i,:) = red(1:3);
+    elseif ismember(i,[2 5 8 11 14])
+        colors(i,:) = blue(1:3);
+    end
+end
+
+subplot(1,2,2); hold on;
+boxplot(box_data,'outliersize',4)
+set(findobj(gca,'type','line'),'linew',1)
+set(findobj(gca,'type','line'),'color','k');
+h = findobj(gca,'Tag','Box');
+h1= findobj(gca,'Tag','Outliers');
+for j=1:length(h)
+    patch(get(h(j),'XData'),get(h(j),'YData'),colors(j,:),'FaceAlpha',.5);
+end
+set(h1,'MarkerEdgeColor','k');
+plot([3 3],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+plot([9 9],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+xticks([])
+title(plot_title)
+ylabel(plot_ylabel)
+xlabel('Baseline        Adaptation            Observation     ')
+
+inc= 0.05;
+ax= axis;
+axis([ax(1) ax(2) ax(3) (ax(4)-ax(3))*(1+inc*6)+ax(3)])
+y1= (ax(4)-ax(3))*(1+inc*1)+ax(3); 
+y2= (ax(4)-ax(3))*(1+inc*2)+ax(3);
+y3= (ax(4)-ax(3))*(1+inc*3)+ax(3);
+y4= (ax(4)-ax(3))*(1+inc*4)+ax(3);
+y5= (ax(4)-ax(3))*(1+inc*5)+ax(3);
+
+signif= significance_test_average(healthy_poi);
+if signif(1) == 1
+    plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
+    text(mean([1 10]),mean([y1 y2]),'\boldmath$\star \uparrow$','fontsize',8,'color',blue,'interpreter','latex')
+elseif signif(1) == -1
+    plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
+    text(mean([1 10]),mean([y1 y2]),'\boldmath$\star \downarrow$','fontsize',8,'color',blue,'interpreter','latex')
+end
+if signif(2) == -1
+    plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
+    text(mean([1 13]),mean([y2 y3]),'\boldmath$\star \downarrow$','fontsize',8,'color',blue,'interpreter','latex')
+elseif signif(2) == 1
+    plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
+    text(mean([1 13]),mean([y2 y3]),'\boldmath$\star \uparrow$','fontsize',8,'color',blue,'interpreter','latex')
+end
+
+signif= significance_test_average(paretic_poi);
+if signif(1) == 1
+    plot([2 11],[y3 y3],'color',red,'LineWidth',1)
+    text(mean([2 11]),mean([y3 y4]),'\boldmath$\star \uparrow$','fontsize',8,'color',red,'interpreter','latex')
+elseif signif(1) == -1
+    plot([2 11],[y3 y3],'color',red,'LineWidth',1)
+    text(mean([2 11]),mean([y3 y4]),'\boldmath$\star \downarrow$','fontsize',8,'color',red,'interpreter','latex')
+end
+if signif(2) == -1
+    plot([2 14],[y4 y4],'color',red,'LineWidth',1)
+    text(mean([2 14]),mean([y4 y5]),'\boldmath$\star \downarrow$','fontsize',8,'color',red,'interpreter','latex')
+elseif signif(2) == 1
+    plot([2 14],[y4 y4],'color',red,'LineWidth',1)
+    text(mean([2 14]),mean([y4 y5]),'\boldmath$\star \uparrow$','fontsize',8,'color',red,'interpreter','latex')
+end
+
+saveas(gcf,'Fig_StepLength.png')
+%% Stance Symmetry - Box & Whisker
+% Step Length
+plot_title= 'Stance Phase Symmetry';
+data_input= par.stance_diff;
+plot_ylabel= 'Gait Cycle (%)';
+
+poi= data_input;
+for j= 1:6
+    temp_a(:,j)= poi{j,1}(end-SPAN+1:end);
+    temp_b1(:,j)= poi{j,2}(1:SPAN);
+    temp_b2(:,j)= poi{j,2}(end-SPAN+1:end);
+    temp_c1(:,j)= poi{j,3}(1:SPAN);
+    temp_c2(:,j)= poi{j,3}(end-SPAN+1:end);
+end
+
+box_data= [];
+box_data(:,1)= mean(temp_a,2);
+box_data(1:SPAN,2)= nan; 
+box_data(:,3)= mean(temp_b1,2); 
+box_data(1:SPAN,4)= nan; 
+box_data(:,5)= mean(temp_b2,2);
+box_data(1:SPAN,6)= nan; 
+box_data(:,7)= mean(temp_c1,2);
+box_data(1:SPAN,8)= nan; 
+box_data(:,9)= mean(temp_c2,2);
+
+poi= [box_data(:,1) box_data(:,3) box_data(:,5) box_data(:,7) box_data(:,9)];
+
+colors = purple(1:3);
+
+figure; set(gcf,'color','w'); hold on;
+plot([-100 100],[0 0],'LineWidth',1,'LineStyle','--','color',[.3 .3 .3],'HandleVisibility','off')
+boxplot(box_data,'outliersize',4)
+set(findobj(gca,'type','line'),'linew',1)
+set(findobj(gca,'type','line'),'color','k');
+% set(findobj(gcf,'tag','Outliers'),'MarkerSize',25);
+h = findobj(gca,'Tag','Box');
+h1= findobj(gca,'Tag','Outliers');
+for j=1:length(h)
+    patch(get(h(j),'XData'),get(h(j),'YData'),colors,'FaceAlpha',.5);
+end
+set(h1,'MarkerEdgeColor','k');
+plot([2 2],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+plot([6 6],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+
+xticks([])
+title(plot_title)
+ylabel(plot_ylabel)
+xlabel('Baseline                  Adaptation                          Observation          ')
+
+inc= 0.05;
+ax= axis;
+axis([ax(1) ax(2) ax(3) (ax(4)-ax(3))*(1+inc*6)+ax(3)])
+y1= (ax(4)-ax(3))*(1+inc*1)+ax(3); 
+y2= (ax(4)-ax(3))*(1+inc*2)+ax(3);
+y3= (ax(4)-ax(3))*(1+inc*3)+ax(3);
+y4= (ax(4)-ax(3))*(1+inc*4)+ax(3);
+y5= (ax(4)-ax(3))*(1+inc*5)+ax(3);
+
+signif= significance_test_average(poi);
+if signif(1) == 1
+    plot([1 7],[y1 y1],'color',purple,'LineWidth',1)
+    text(mean([1 7]),mean([y1 y2]),'\boldmath$\star \uparrow$','fontsize',8,'color',purple,'interpreter','latex')
+elseif signif(1) == -1
+    plot([1 7],[y1 y1],'color',purple,'LineWidth',1)
+    text(mean([1 7]),mean([y1 y2]),'\boldmath$\star \downarrow$','fontsize',8,'color',purple,'interpreter','latex')
+end
+if signif(2) == -1
+    plot([1 9],[y2 y2],'color',purple,'LineWidth',1)
+    text(mean([1 9]),mean([y2 y3]),'\boldmath$\star \downarrow$','fontsize',8,'color',purple,'interpreter','latex')
+elseif signif(2) == 1
+    plot([1 9],[y2 y2],'color',purple,'LineWidth',1)
+    text(mean([1 9]),mean([y2 y3]),'\boldmath$\star \uparrow$','fontsize',8,'color',purple,'interpreter','latex')
+end
+
+saveas(gcf,'Fig_Symmetry.png')
+%% Muscle Activity - Box & Whisker
+% TA
+plot_title= 'Tibialis Anterior';
+healthy_data_input= par.ta_healthy;
+paretic_data_input= par.ta_paretic;
+plot_ylabel= 'Muscle Activity (%)';
+
+h_poi= healthy_data_input;
+for j= 1:6
+    h_temp_a(:,j)= h_poi{j,1}(end-SPAN+1:end);
+    h_temp_b1(:,j)= h_poi{j,2}(1:SPAN);
+    h_temp_b2(:,j)= h_poi{j,2}(end-SPAN+1:end);
+    h_temp_c1(:,j)= h_poi{j,3}(1:SPAN);
+    h_temp_c2(:,j)= h_poi{j,3}(end-SPAN+1:end);
+end
+
+p_poi= paretic_data_input;
+for j= 1:6
+    p_temp_a(:,j)= p_poi{j,1}(end-SPAN+1:end);
+    p_temp_b1(:,j)= p_poi{j,2}(1:SPAN);
+    p_temp_b2(:,j)= p_poi{j,2}(end-SPAN+1:end);
+    p_temp_c1(:,j)= p_poi{j,3}(1:SPAN);
+    p_temp_c2(:,j)= p_poi{j,3}(end-SPAN+1:end);
+end
+
+box_data= [];
+box_data(:,1)= mean(h_temp_a,2);
+box_data(:,2)= mean(p_temp_a,2);
+box_data(1:SPAN,3)= nan; 
+box_data(:,4)= mean(h_temp_b1,2);
+box_data(:,5)= mean(p_temp_b1,2);
+box_data(1:SPAN,6)= nan; 
+box_data(:,7)= mean(h_temp_b2,2);
+box_data(:,8)= mean(p_temp_b2,2);
+box_data(1:SPAN,9)= nan; 
+box_data(:,10)= mean(h_temp_c1,2);
+box_data(:,11)= mean(p_temp_c1,2);
+box_data(1:SPAN,12)= nan; 
+box_data(:,13)= mean(h_temp_c2,2);
+box_data(:,14)= mean(p_temp_c2,2);
+
+healthy_poi= [box_data(:,1) box_data(:,4) box_data(:,7) box_data(:,10) box_data(:,13)];
+paretic_poi= [box_data(:,2) box_data(:,5) box_data(:,8) box_data(:,11) box_data(:,14)];
+
+for i= 1:14
+    if ismember(i,[1 4 7 10 13])
+        colors(i,:) = red(1:3);
+    elseif ismember(i,[2 5 8 11 14])
+        colors(i,:) = blue(1:3);
+    end
+end
+
+figure; set(gcf,'color','w','position',[-2122 425 2221 345]); hold on;
+subplot(1,5,1); hold on;
+boxplot(box_data,'outliersize',4)
+set(findobj(gca,'type','line'),'linew',1)
+set(findobj(gca,'type','line'),'color','k');
+h = findobj(gca,'Tag','Box');
+h1= findobj(gca,'Tag','Outliers');
+for j=1:length(h)
+    patch(get(h(j),'XData'),get(h(j),'YData'),colors(j,:),'FaceAlpha',.5);
+end
+set(h1,'MarkerEdgeColor','k');
+plot([3 3],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+plot([9 9],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+xticks([])
+title(plot_title)
+ylabel(plot_ylabel)
+xlabel('Baseline     Adaptation          Observation    ')
+
+inc= 0.05;
+ax= axis;
+axis([ax(1) ax(2) ax(3) (ax(4)-ax(3))*(1+inc*6)+ax(3)])
+y1= (ax(4)-ax(3))*(1+inc*1)+ax(3); 
+y2= (ax(4)-ax(3))*(1+inc*2)+ax(3);
+y3= (ax(4)-ax(3))*(1+inc*3)+ax(3);
+y4= (ax(4)-ax(3))*(1+inc*4)+ax(3);
+y5= (ax(4)-ax(3))*(1+inc*5)+ax(3);
+
+signif= significance_test_average(healthy_poi);
+if signif(1) == 1
+    plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
+    text(mean([1 10]),mean([y1 y2]),'\boldmath$\star \uparrow$','fontsize',8,'color',blue,'interpreter','latex')
+elseif signif(1) == -1
+    plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
+    text(mean([1 10]),mean([y1 y2]),'\boldmath$\star \downarrow$','fontsize',8,'color',blue,'interpreter','latex')
+end
+if signif(2) == -1
+    plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
+    text(mean([1 13]),mean([y2 y3]),'\boldmath$\star \downarrow$','fontsize',8,'color',blue,'interpreter','latex')
+elseif signif(2) == 1
+    plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
+    text(mean([1 13]),mean([y2 y3]),'\boldmath$\star \uparrow$','fontsize',8,'color',blue,'interpreter','latex')
+end
+
+signif= significance_test_average(paretic_poi);
+if signif(1) == 1
+    plot([2 11],[y3 y3],'color',red,'LineWidth',1)
+    text(mean([2 11]),mean([y3 y4]),'\boldmath$\star \uparrow$','fontsize',8,'color',red,'interpreter','latex')
+elseif signif(1) == -1
+    plot([2 11],[y3 y3],'color',red,'LineWidth',1)
+    text(mean([2 11]),mean([y3 y4]),'\boldmath$\star \downarrow$','fontsize',8,'color',red,'interpreter','latex')
+end
+if signif(2) == -1
+    plot([2 14],[y4 y4],'color',red,'LineWidth',1)
+    text(mean([2 14]),mean([y4 y5]),'\boldmath$\star \downarrow$','fontsize',8,'color',red,'interpreter','latex')
+elseif signif(2) == 1
+    plot([2 14],[y4 y4],'color',red,'LineWidth',1)
+    text(mean([2 14]),mean([y4 y5]),'\boldmath$\star \uparrow$','fontsize',8,'color',red,'interpreter','latex')
+end
+
+% GA
+plot_title= 'Gastrocnemius';
+healthy_data_input= par.ga_healthy;
+paretic_data_input= par.ga_paretic;
+plot_ylabel= 'Muscle Activity (%)';
+
+h_poi= healthy_data_input;
+for j= 1:6
+    h_temp_a(:,j)= h_poi{j,1}(end-SPAN+1:end);
+    h_temp_b1(:,j)= h_poi{j,2}(1:SPAN);
+    h_temp_b2(:,j)= h_poi{j,2}(end-SPAN+1:end);
+    h_temp_c1(:,j)= h_poi{j,3}(1:SPAN);
+    h_temp_c2(:,j)= h_poi{j,3}(end-SPAN+1:end);
+end
+
+p_poi= paretic_data_input;
+for j= 1:6
+    p_temp_a(:,j)= p_poi{j,1}(end-SPAN+1:end);
+    p_temp_b1(:,j)= p_poi{j,2}(1:SPAN);
+    p_temp_b2(:,j)= p_poi{j,2}(end-SPAN+1:end);
+    p_temp_c1(:,j)= p_poi{j,3}(1:SPAN);
+    p_temp_c2(:,j)= p_poi{j,3}(end-SPAN+1:end);
+end
+
+box_data= [];
+box_data(:,1)= mean(h_temp_a,2);
+box_data(:,2)= mean(p_temp_a,2);
+box_data(1:SPAN,3)= nan; 
+box_data(:,4)= mean(h_temp_b1,2);
+box_data(:,5)= mean(p_temp_b1,2);
+box_data(1:SPAN,6)= nan; 
+box_data(:,7)= mean(h_temp_b2,2);
+box_data(:,8)= mean(p_temp_b2,2);
+box_data(1:SPAN,9)= nan; 
+box_data(:,10)= mean(h_temp_c1,2);
+box_data(:,11)= mean(p_temp_c1,2);
+box_data(1:SPAN,12)= nan; 
+box_data(:,13)= mean(h_temp_c2,2);
+box_data(:,14)= mean(p_temp_c2,2);
+
+healthy_poi= [box_data(:,1) box_data(:,4) box_data(:,7) box_data(:,10) box_data(:,13)];
+paretic_poi= [box_data(:,2) box_data(:,5) box_data(:,8) box_data(:,11) box_data(:,14)];
+
+for i= 1:14
+    if ismember(i,[1 4 7 10 13])
+        colors(i,:) = red(1:3);
+    elseif ismember(i,[2 5 8 11 14])
+        colors(i,:) = blue(1:3);
+    end
+end
+
+subplot(1,5,2); hold on;
+boxplot(box_data,'outliersize',4)
+set(findobj(gca,'type','line'),'linew',1)
+set(findobj(gca,'type','line'),'color','k');
+h = findobj(gca,'Tag','Box');
+h1= findobj(gca,'Tag','Outliers');
+for j=1:length(h)
+    patch(get(h(j),'XData'),get(h(j),'YData'),colors(j,:),'FaceAlpha',.5);
+end
+set(h1,'MarkerEdgeColor','k');
+plot([3 3],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+plot([9 9],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+xticks([])
+title(plot_title)
+% ylabel(plot_ylabel)
+xlabel('Baseline     Adaptation          Observation    ')
+
+inc= 0.05;
+ax= axis;
+axis([ax(1) ax(2) ax(3) (ax(4)-ax(3))*(1+inc*6)+ax(3)])
+y1= (ax(4)-ax(3))*(1+inc*1)+ax(3); 
+y2= (ax(4)-ax(3))*(1+inc*2)+ax(3);
+y3= (ax(4)-ax(3))*(1+inc*3)+ax(3);
+y4= (ax(4)-ax(3))*(1+inc*4)+ax(3);
+y5= (ax(4)-ax(3))*(1+inc*5)+ax(3);
+
+signif= significance_test_average(healthy_poi);
+if signif(1) == 1
+    plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
+    text(mean([1 10]),mean([y1 y2]),'\boldmath$\star \uparrow$','fontsize',8,'color',blue,'interpreter','latex')
+elseif signif(1) == -1
+    plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
+    text(mean([1 10]),mean([y1 y2]),'\boldmath$\star \downarrow$','fontsize',8,'color',blue,'interpreter','latex')
+end
+if signif(2) == -1
+    plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
+    text(mean([1 13]),mean([y2 y3]),'\boldmath$\star \downarrow$','fontsize',8,'color',blue,'interpreter','latex')
+elseif signif(2) == 1
+    plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
+    text(mean([1 13]),mean([y2 y3]),'\boldmath$\star \uparrow$','fontsize',8,'color',blue,'interpreter','latex')
+end
+
+signif= significance_test_average(paretic_poi);
+if signif(1) == 1
+    plot([2 11],[y3 y3],'color',red,'LineWidth',1)
+    text(mean([2 11]),mean([y3 y4]),'\boldmath$\star \uparrow$','fontsize',8,'color',red,'interpreter','latex')
+elseif signif(1) == -1
+    plot([2 11],[y3 y3],'color',red,'LineWidth',1)
+    text(mean([2 11]),mean([y3 y4]),'\boldmath$\star \downarrow$','fontsize',8,'color',red,'interpreter','latex')
+end
+if signif(2) == -1
+    plot([2 14],[y4 y4],'color',red,'LineWidth',1)
+    text(mean([2 14]),mean([y4 y5]),'\boldmath$\star \downarrow$','fontsize',8,'color',red,'interpreter','latex')
+elseif signif(2) == 1
+    plot([2 14],[y4 y4],'color',red,'LineWidth',1)
+    text(mean([2 14]),mean([y4 y5]),'\boldmath$\star \uparrow$','fontsize',8,'color',red,'interpreter','latex')
+end
+
+% VA
+plot_title= 'Vastus Medialis';
+healthy_data_input= par.va_healthy;
+paretic_data_input= par.va_paretic;
+plot_ylabel= 'Muscle Activity (%)';
+
+h_poi= healthy_data_input;
+for j= 1:6
+    h_temp_a(:,j)= h_poi{j,1}(end-SPAN+1:end);
+    h_temp_b1(:,j)= h_poi{j,2}(1:SPAN);
+    h_temp_b2(:,j)= h_poi{j,2}(end-SPAN+1:end);
+    h_temp_c1(:,j)= h_poi{j,3}(1:SPAN);
+    h_temp_c2(:,j)= h_poi{j,3}(end-SPAN+1:end);
+end
+
+p_poi= paretic_data_input;
+for j= 1:6
+    p_temp_a(:,j)= p_poi{j,1}(end-SPAN+1:end);
+    p_temp_b1(:,j)= p_poi{j,2}(1:SPAN);
+    p_temp_b2(:,j)= p_poi{j,2}(end-SPAN+1:end);
+    p_temp_c1(:,j)= p_poi{j,3}(1:SPAN);
+    p_temp_c2(:,j)= p_poi{j,3}(end-SPAN+1:end);
+end
+
+h_temp_a(:,1)= [];
+h_temp_b1(:,1)= [];
+h_temp_b2(:,1)= [];
+h_temp_c1(:,1)= [];
+h_temp_c2(:,1)= [];
+p_temp_a(:,1)= [];
+p_temp_b1(:,1)= [];
+p_temp_b2(:,1)= [];
+p_temp_c1(:,1)= [];
+p_temp_c2(:,1)= [];
+
+
+box_data= [];
+box_data(:,1)= mean(h_temp_a,2);
+box_data(:,2)= mean(p_temp_a,2);
+box_data(1:SPAN,3)= nan; 
+box_data(:,4)= mean(h_temp_b1,2);
+box_data(:,5)= mean(p_temp_b1,2);
+box_data(1:SPAN,6)= nan; 
+box_data(:,7)= mean(h_temp_b2,2);
+box_data(:,8)= mean(p_temp_b2,2);
+box_data(1:SPAN,9)= nan; 
+box_data(:,10)= mean(h_temp_c1,2);
+box_data(:,11)= mean(p_temp_c1,2);
+box_data(1:SPAN,12)= nan; 
+box_data(:,13)= mean(h_temp_c2,2);
+box_data(:,14)= mean(p_temp_c2,2);
+
+healthy_poi= [box_data(:,1) box_data(:,4) box_data(:,7) box_data(:,10) box_data(:,13)];
+paretic_poi= [box_data(:,2) box_data(:,5) box_data(:,8) box_data(:,11) box_data(:,14)];
+
+for i= 1:14
+    if ismember(i,[1 4 7 10 13])
+        colors(i,:) = red(1:3);
+    elseif ismember(i,[2 5 8 11 14])
+        colors(i,:) = blue(1:3);
+    end
+end
+
+subplot(1,5,3); hold on;
+boxplot(box_data,'outliersize',4)
+set(findobj(gca,'type','line'),'linew',1)
+set(findobj(gca,'type','line'),'color','k');
+h = findobj(gca,'Tag','Box');
+h1= findobj(gca,'Tag','Outliers');
+for j=1:length(h)
+    patch(get(h(j),'XData'),get(h(j),'YData'),colors(j,:),'FaceAlpha',.5);
+end
+set(h1,'MarkerEdgeColor','k');
+plot([3 3],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+plot([9 9],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+xticks([])
+title(plot_title)
+% ylabel(plot_ylabel)
+xlabel('Baseline     Adaptation          Observation    ')
+
+inc= 0.05;
+ax= axis;
+axis([ax(1) ax(2) ax(3) (ax(4)-ax(3))*(1+inc*6)+ax(3)])
+y1= (ax(4)-ax(3))*(1+inc*1)+ax(3); 
+y2= (ax(4)-ax(3))*(1+inc*2)+ax(3);
+y3= (ax(4)-ax(3))*(1+inc*3)+ax(3);
+y4= (ax(4)-ax(3))*(1+inc*4)+ax(3);
+y5= (ax(4)-ax(3))*(1+inc*5)+ax(3);
+
+signif= significance_test_average(healthy_poi);
+if signif(1) == 1
+    plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
+    text(mean([1 10]),mean([y1 y2]),'\boldmath$\star \uparrow$','fontsize',8,'color',blue,'interpreter','latex')
+elseif signif(1) == -1
+    plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
+    text(mean([1 10]),mean([y1 y2]),'\boldmath$\star \downarrow$','fontsize',8,'color',blue,'interpreter','latex')
+end
+if signif(2) == -1
+    plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
+    text(mean([1 13]),mean([y2 y3]),'\boldmath$\star \downarrow$','fontsize',8,'color',blue,'interpreter','latex')
+elseif signif(2) == 1
+    plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
+    text(mean([1 13]),mean([y2 y3]),'\boldmath$\star \uparrow$','fontsize',8,'color',blue,'interpreter','latex')
+end
+
+signif= significance_test_average(paretic_poi);
+if signif(1) == 1
+    plot([2 11],[y3 y3],'color',red,'LineWidth',1)
+    text(mean([2 11]),mean([y3 y4]),'\boldmath$\star \uparrow$','fontsize',8,'color',red,'interpreter','latex')
+elseif signif(1) == -1
+    plot([2 11],[y3 y3],'color',red,'LineWidth',1)
+    text(mean([2 11]),mean([y3 y4]),'\boldmath$\star \downarrow$','fontsize',8,'color',red,'interpreter','latex')
+end
+if signif(2) == -1
+    plot([2 14],[y4 y4],'color',red,'LineWidth',1)
+    text(mean([2 14]),mean([y4 y5]),'\boldmath$\star \downarrow$','fontsize',8,'color',red,'interpreter','latex')
+elseif signif(2) == 1
+    plot([2 14],[y4 y4],'color',red,'LineWidth',1)
+    text(mean([2 14]),mean([y4 y5]),'\boldmath$\star \uparrow$','fontsize',8,'color',red,'interpreter','latex')
+end
+
+% RF
+plot_title= 'Rectus Femoris';
+healthy_data_input= par.rf_healthy;
+paretic_data_input= par.rf_paretic;
+plot_ylabel= 'Muscle Activity (%)';
+
+h_poi= healthy_data_input;
+for j= 1:6
+    h_temp_a(:,j)= h_poi{j,1}(end-SPAN+1:end);
+    h_temp_b1(:,j)= h_poi{j,2}(1:SPAN);
+    h_temp_b2(:,j)= h_poi{j,2}(end-SPAN+1:end);
+    h_temp_c1(:,j)= h_poi{j,3}(1:SPAN);
+    h_temp_c2(:,j)= h_poi{j,3}(end-SPAN+1:end);
+end
+
+p_poi= paretic_data_input;
+for j= 1:6
+    p_temp_a(:,j)= p_poi{j,1}(end-SPAN+1:end);
+    p_temp_b1(:,j)= p_poi{j,2}(1:SPAN);
+    p_temp_b2(:,j)= p_poi{j,2}(end-SPAN+1:end);
+    p_temp_c1(:,j)= p_poi{j,3}(1:SPAN);
+    p_temp_c2(:,j)= p_poi{j,3}(end-SPAN+1:end);
+end
+
+h_temp_a(:,1)= [];
+h_temp_b1(:,1)= [];
+h_temp_b2(:,1)= [];
+h_temp_c1(:,1)= [];
+h_temp_c2(:,1)= [];
+p_temp_a(:,1)= [];
+p_temp_b1(:,1)= [];
+p_temp_b2(:,1)= [];
+p_temp_c1(:,1)= [];
+p_temp_c2(:,1)= [];
+
+
+box_data= [];
+box_data(:,1)= mean(h_temp_a,2);
+box_data(:,2)= mean(p_temp_a,2);
+box_data(1:SPAN,3)= nan; 
+box_data(:,4)= mean(h_temp_b1,2);
+box_data(:,5)= mean(p_temp_b1,2);
+box_data(1:SPAN,6)= nan; 
+box_data(:,7)= mean(h_temp_b2,2);
+box_data(:,8)= mean(p_temp_b2,2);
+box_data(1:SPAN,9)= nan; 
+box_data(:,10)= mean(h_temp_c1,2);
+box_data(:,11)= mean(p_temp_c1,2);
+box_data(1:SPAN,12)= nan; 
+box_data(:,13)= mean(h_temp_c2,2);
+box_data(:,14)= mean(p_temp_c2,2);
+
+healthy_poi= [box_data(:,1) box_data(:,4) box_data(:,7) box_data(:,10) box_data(:,13)];
+paretic_poi= [box_data(:,2) box_data(:,5) box_data(:,8) box_data(:,11) box_data(:,14)];
+
+for i= 1:14
+    if ismember(i,[1 4 7 10 13])
+        colors(i,:) = red(1:3);
+    elseif ismember(i,[2 5 8 11 14])
+        colors(i,:) = blue(1:3);
+    end
+end
+
+subplot(1,5,4); hold on;
+boxplot(box_data,'outliersize',4)
+set(findobj(gca,'type','line'),'linew',1)
+set(findobj(gca,'type','line'),'color','k');
+h = findobj(gca,'Tag','Box');
+h1= findobj(gca,'Tag','Outliers');
+for j=1:length(h)
+    patch(get(h(j),'XData'),get(h(j),'YData'),colors(j,:),'FaceAlpha',.5);
+end
+set(h1,'MarkerEdgeColor','k');
+plot([3 3],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+plot([9 9],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+xticks([])
+title(plot_title)
+% ylabel(plot_ylabel)
+xlabel('Baseline     Adaptation          Observation    ')
+
+inc= 0.05;
+ax= axis;
+axis([ax(1) ax(2) ax(3) (ax(4)-ax(3))*(1+inc*6)+ax(3)])
+y1= (ax(4)-ax(3))*(1+inc*1)+ax(3); 
+y2= (ax(4)-ax(3))*(1+inc*2)+ax(3);
+y3= (ax(4)-ax(3))*(1+inc*3)+ax(3);
+y4= (ax(4)-ax(3))*(1+inc*4)+ax(3);
+y5= (ax(4)-ax(3))*(1+inc*5)+ax(3);
+
+signif= significance_test_average(healthy_poi);
+if signif(1) == 1
+    plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
+    text(mean([1 10]),mean([y1 y2]),'\boldmath$\star \uparrow$','fontsize',8,'color',blue,'interpreter','latex')
+elseif signif(1) == -1
+    plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
+    text(mean([1 10]),mean([y1 y2]),'\boldmath$\star \downarrow$','fontsize',8,'color',blue,'interpreter','latex')
+end
+if signif(2) == -1
+    plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
+    text(mean([1 13]),mean([y2 y3]),'\boldmath$\star \downarrow$','fontsize',8,'color',blue,'interpreter','latex')
+elseif signif(2) == 1
+    plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
+    text(mean([1 13]),mean([y2 y3]),'\boldmath$\star \uparrow$','fontsize',8,'color',blue,'interpreter','latex')
+end
+
+signif= significance_test_average(paretic_poi);
+if signif(1) == 1
+    plot([2 11],[y3 y3],'color',red,'LineWidth',1)
+    text(mean([2 11]),mean([y3 y4]),'\boldmath$\star \uparrow$','fontsize',8,'color',red,'interpreter','latex')
+elseif signif(1) == -1
+    plot([2 11],[y3 y3],'color',red,'LineWidth',1)
+    text(mean([2 11]),mean([y3 y4]),'\boldmath$\star \downarrow$','fontsize',8,'color',red,'interpreter','latex')
+end
+if signif(2) == -1
+    plot([2 14],[y4 y4],'color',red,'LineWidth',1)
+    text(mean([2 14]),mean([y4 y5]),'\boldmath$\star \downarrow$','fontsize',8,'color',red,'interpreter','latex')
+elseif signif(2) == 1
+    plot([2 14],[y4 y4],'color',red,'LineWidth',1)
+    text(mean([2 14]),mean([y4 y5]),'\boldmath$\star \uparrow$','fontsize',8,'color',red,'interpreter','latex')
+end
+
+% BF
+plot_title= 'Biceps Femoris';
+healthy_data_input= par.bf_healthy;
+paretic_data_input= par.bf_paretic;
+plot_ylabel= 'Muscle Activity (%)';
+
+h_poi= healthy_data_input;
+for j= 1:6
+    h_temp_a(:,j)= h_poi{j,1}(end-SPAN+1:end);
+    h_temp_b1(:,j)= h_poi{j,2}(1:SPAN);
+    h_temp_b2(:,j)= h_poi{j,2}(end-SPAN+1:end);
+    h_temp_c1(:,j)= h_poi{j,3}(1:SPAN);
+    h_temp_c2(:,j)= h_poi{j,3}(end-SPAN+1:end);
+end
+
+p_poi= paretic_data_input;
+for j= 1:6
+    p_temp_a(:,j)= p_poi{j,1}(end-SPAN+1:end);
+    p_temp_b1(:,j)= p_poi{j,2}(1:SPAN);
+    p_temp_b2(:,j)= p_poi{j,2}(end-SPAN+1:end);
+    p_temp_c1(:,j)= p_poi{j,3}(1:SPAN);
+    p_temp_c2(:,j)= p_poi{j,3}(end-SPAN+1:end);
+end
+
+h_temp_a(:,1)= [];
+h_temp_b1(:,1)= [];
+h_temp_b2(:,1)= [];
+h_temp_c1(:,1)= [];
+h_temp_c2(:,1)= [];
+p_temp_a(:,1)= [];
+p_temp_b1(:,1)= [];
+p_temp_b2(:,1)= [];
+p_temp_c1(:,1)= [];
+p_temp_c2(:,1)= [];
+
+
+box_data= [];
+box_data(:,1)= mean(h_temp_a,2);
+box_data(:,2)= mean(p_temp_a,2);
+box_data(1:SPAN,3)= nan; 
+box_data(:,4)= mean(h_temp_b1,2);
+box_data(:,5)= mean(p_temp_b1,2);
+box_data(1:SPAN,6)= nan; 
+box_data(:,7)= mean(h_temp_b2,2);
+box_data(:,8)= mean(p_temp_b2,2);
+box_data(1:SPAN,9)= nan; 
+box_data(:,10)= mean(h_temp_c1,2);
+box_data(:,11)= mean(p_temp_c1,2);
+box_data(1:SPAN,12)= nan; 
+box_data(:,13)= mean(h_temp_c2,2);
+box_data(:,14)= mean(p_temp_c2,2);
+
+healthy_poi= [box_data(:,1) box_data(:,4) box_data(:,7) box_data(:,10) box_data(:,13)];
+paretic_poi= [box_data(:,2) box_data(:,5) box_data(:,8) box_data(:,11) box_data(:,14)];
+
+for i= 1:14
+    if ismember(i,[1 4 7 10 13])
+        colors(i,:) = red(1:3);
+    elseif ismember(i,[2 5 8 11 14])
+        colors(i,:) = blue(1:3);
+    end
+end
+
+subplot(1,5,5); hold on;
+boxplot(box_data,'outliersize',4)
+set(findobj(gca,'type','line'),'linew',1)
+set(findobj(gca,'type','line'),'color','k');
+h = findobj(gca,'Tag','Box');
+h1= findobj(gca,'Tag','Outliers');
+for j=1:length(h)
+    patch(get(h(j),'XData'),get(h(j),'YData'),colors(j,:),'FaceAlpha',.5);
+end
+set(h1,'MarkerEdgeColor','k');
+plot([3 3],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+plot([9 9],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+xticks([])
+title(plot_title)
+% ylabel(plot_ylabel)
+xlabel('Baseline     Adaptation          Observation    ')
+
+inc= 0.05;
+ax= axis;
+axis([ax(1) ax(2) ax(3) (ax(4)-ax(3))*(1+inc*6)+ax(3)])
+y1= (ax(4)-ax(3))*(1+inc*1)+ax(3); 
+y2= (ax(4)-ax(3))*(1+inc*2)+ax(3);
+y3= (ax(4)-ax(3))*(1+inc*3)+ax(3);
+y4= (ax(4)-ax(3))*(1+inc*4)+ax(3);
+y5= (ax(4)-ax(3))*(1+inc*5)+ax(3);
+
+signif= significance_test_average(healthy_poi);
+if signif(1) == 1
+    plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
+    text(mean([1 10]),mean([y1 y2]),'\boldmath$\star \uparrow$','fontsize',8,'color',blue,'interpreter','latex')
+elseif signif(1) == -1
+    plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
+    text(mean([1 10]),mean([y1 y2]),'\boldmath$\star \downarrow$','fontsize',8,'color',blue,'interpreter','latex')
+end
+if signif(2) == -1
+    plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
+    text(mean([1 13]),mean([y2 y3]),'\boldmath$\star \downarrow$','fontsize',8,'color',blue,'interpreter','latex')
+elseif signif(2) == 1
+    plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
+    text(mean([1 13]),mean([y2 y3]),'\boldmath$\star \uparrow$','fontsize',8,'color',blue,'interpreter','latex')
+end
+
+signif= significance_test_average(paretic_poi);
+if signif(1) == 1
+    plot([2 11],[y3 y3],'color',red,'LineWidth',1)
+    text(mean([2 11]),mean([y3 y4]),'\boldmath$\star \uparrow$','fontsize',8,'color',red,'interpreter','latex')
+elseif signif(1) == -1
+    plot([2 11],[y3 y3],'color',red,'LineWidth',1)
+    text(mean([2 11]),mean([y3 y4]),'\boldmath$\star \downarrow$','fontsize',8,'color',red,'interpreter','latex')
+end
+if signif(2) == -1
+    plot([2 14],[y4 y4],'color',red,'LineWidth',1)
+    text(mean([2 14]),mean([y4 y5]),'\boldmath$\star \downarrow$','fontsize',8,'color',red,'interpreter','latex')
+elseif signif(2) == 1
+    plot([2 14],[y4 y4],'color',red,'LineWidth',1)
+    text(mean([2 14]),mean([y4 y5]),'\boldmath$\star \uparrow$','fontsize',8,'color',red,'interpreter','latex')
+end
+
+saveas(gcf,'Fig_MuscleActivity.png')
+%% Push Off Force Average - Box & Whisker
+% Step Length
+plot_title= 'Push Off Force';
+healthy_data_input= par.force_healthy;
+paretic_data_input= par.force_paretic;
+plot_ylabel= 'Vertical GRF (N)';
+
+h_poi= healthy_data_input;
+for j= 1:6
+    h_temp_a(:,j)= h_poi{j,1}(end-SPAN+1:end);
+    h_temp_b1(:,j)= h_poi{j,2}(1:SPAN);
+    h_temp_b2(:,j)= h_poi{j,2}(end-SPAN+1:end);
+    h_temp_c1(:,j)= h_poi{j,3}(1:SPAN);
+    h_temp_c2(:,j)= h_poi{j,3}(end-SPAN+1:end);
+end
+
+p_poi= paretic_data_input;
+for j= 1:6
+    p_temp_a(:,j)= p_poi{j,1}(end-SPAN+1:end);
+    p_temp_b1(:,j)= p_poi{j,2}(1:SPAN);
+    p_temp_b2(:,j)= p_poi{j,2}(end-SPAN+1:end);
+    p_temp_c1(:,j)= p_poi{j,3}(1:SPAN);
+    p_temp_c2(:,j)= p_poi{j,3}(end-SPAN+1:end);
+end
+
+box_data= [];
+box_data(:,1)= mean(h_temp_a,2);
+box_data(:,2)= mean(p_temp_a,2);
+box_data(1:SPAN,3)= nan; 
+box_data(:,4)= mean(h_temp_b1,2);
+box_data(:,5)= mean(p_temp_b1,2);
+box_data(1:SPAN,6)= nan; 
+box_data(:,7)= mean(h_temp_b2,2);
+box_data(:,8)= mean(p_temp_b2,2);
+box_data(1:SPAN,9)= nan; 
+box_data(:,10)= mean(h_temp_c1,2);
+box_data(:,11)= mean(p_temp_c1,2);
+box_data(1:SPAN,12)= nan; 
+box_data(:,13)= mean(h_temp_c2,2);
+box_data(:,14)= mean(p_temp_c2,2);
+
+healthy_poi= [box_data(:,1) box_data(:,4) box_data(:,7) box_data(:,10) box_data(:,13)];
+paretic_poi= [box_data(:,2) box_data(:,5) box_data(:,8) box_data(:,11) box_data(:,14)];
+
+for i= 1:14
+    if ismember(i,[1 4 7 10 13])
+        colors(i,:) = red(1:3);
+    elseif ismember(i,[2 5 8 11 14])
+        colors(i,:) = blue(1:3);
+    end
+end
+
+figure; set(gcf,'color','w'); hold on;
+boxplot(box_data,'outliersize',4)
+set(findobj(gca,'type','line'),'linew',1)
+set(findobj(gca,'type','line'),'color','k');
+h = findobj(gca,'Tag','Box');
+h1= findobj(gca,'Tag','Outliers');
+for j=1:length(h)
+    patch(get(h(j),'XData'),get(h(j),'YData'),colors(j,:),'FaceAlpha',.5);
+end
+set(h1,'MarkerEdgeColor','k');
+plot([3 3],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+plot([9 9],[-10000 10000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+xticks([])
+title(plot_title)
+ylabel(plot_ylabel)
+xlabel(' Baseline                  Adaptation                         Observation          ')
+
+inc= 0.05;
+ax= axis;
+axis([ax(1) ax(2) ax(3) (ax(4)-ax(3))*(1+inc*6)+ax(3)])
+y1= (ax(4)-ax(3))*(1+inc*1)+ax(3); 
+y2= (ax(4)-ax(3))*(1+inc*2)+ax(3);
+y3= (ax(4)-ax(3))*(1+inc*3)+ax(3);
+y4= (ax(4)-ax(3))*(1+inc*4)+ax(3);
+y5= (ax(4)-ax(3))*(1+inc*5)+ax(3);
+
+signif= significance_test_average(healthy_poi);
+if signif(1) == 1
+    plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
+    text(mean([1 10]),mean([y1 y2]),'\boldmath$\star \uparrow$','fontsize',8,'color',blue,'interpreter','latex')
+elseif signif(1) == -1
+    plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
+    text(mean([1 10]),mean([y1 y2]),'\boldmath$\star \downarrow$','fontsize',8,'color',blue,'interpreter','latex')
+end
+if signif(2) == -1
+    plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
+    text(mean([1 13]),mean([y2 y3]),'\boldmath$\star \downarrow$','fontsize',8,'color',blue,'interpreter','latex')
+elseif signif(2) == 1
+    plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
+    text(mean([1 13]),mean([y2 y3]),'\boldmath$\star \uparrow$','fontsize',8,'color',blue,'interpreter','latex')
+end
+
+signif= significance_test_average(paretic_poi);
+if signif(1) == 1
+    plot([2 11],[y3 y3],'color',red,'LineWidth',1)
+    text(mean([2 11]),mean([y3 y4]),'\boldmath$\star \uparrow$','fontsize',8,'color',red,'interpreter','latex')
+elseif signif(1) == -1
+    plot([2 11],[y3 y3],'color',red,'LineWidth',1)
+    text(mean([2 11]),mean([y3 y4]),'\boldmath$\star \downarrow$','fontsize',8,'color',red,'interpreter','latex')
+end
+if signif(2) == -1
+    plot([2 14],[y4 y4],'color',red,'LineWidth',1)
+    text(mean([2 14]),mean([y4 y5]),'\boldmath$\star \downarrow$','fontsize',8,'color',red,'interpreter','latex')
+elseif signif(2) == 1
+    plot([2 14],[y4 y4],'color',red,'LineWidth',1)
+    text(mean([2 14]),mean([y4 y5]),'\boldmath$\star \uparrow$','fontsize',8,'color',red,'interpreter','latex')
+end
+saveas(gcf,'Fig_PushOffForce.png')
+%% CoP Path
+plot_title= 'CoP Path';
+data_input= par.cop_path;
+plot_xlabel= 'Medial/Lateral Position (mm)';
+plot_ylabel= 'Anterior/Posterior Position (mm)';
+
+poi= data_input;
+for j= 1:6
+    temp_ax(:,j)= poi{j,1}(:,1);
+    temp_ay(:,j)= poi{j,1}(:,2);
+    temp_c1x(:,j)= poi{j,4}(:,1);
+    temp_c1y(:,j)= poi{j,4}(:,2);
+    temp_c2x(:,j)= poi{j,5}(:,1);
+    temp_c2y(:,j)= poi{j,5}(:,2);
+end
+
+plot_data= [];
+plot_data(:,1)= mean(temp_ax,2);
+plot_data(:,2)= mean(temp_ay,2);
+plot_data(:,3)= mean(temp_c1x,2);
+plot_data(:,4)= mean(temp_c1y,2);
+plot_data(:,5)= mean(temp_c2x,2);
+plot_data(:,6)= mean(temp_c2y,2);
+
+for i= 1:6
+    plot_data(:,i)= smooth(plot_data(:,i));
+end
+
+colororder('default');
+
+figure; set(gcf,'color','w'); hold on;
+plot(plot_data(:,1),plot_data(:,2),'LineWidth',2)
+plot(plot_data(:,3),plot_data(:,4),'LineWidth',2)
+plot(plot_data(:,5),plot_data(:,6),'LineWidth',2)
+axis equal
+axis manual
+plot([-1000 1000],[0 0],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+plot([0 0],[-1000 1000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+% legend('Baseline','Early Adapt','Late Adapt','Early Obs','Late Obs','Position',[0.90827 0.23599 0.076389 0.11203])
+legend('Baseline','Early Obs','Late Obs','Position',[0.5 0.15 0.186 0.126])
+title(plot_title)
+xlabel(plot_xlabel)
+ylabel(plot_ylabel)
+
+saveas(gcf,'Fig_CoP.png')
+%% Stance Symmetry Average - Box & Whisker
 % Average Muscle Activty for all 5 muscles - Box & Whisker
 % Push Off Force Average - Box & Whisker
 % 2 Representative (Good & Bad) CoP Path Plot
-% -- DISCUSSION --
+%% DISCUSSION
 
 %% Functions
 function avg_single_box_whisker_plot(parameter_of_interest,plot_title,plot_ylabel,subplot_number)
@@ -1586,6 +2631,19 @@ c2 = only_data{3}(end-SPAN+1:end);
 [~, h(1,2)] = ranksum(a,c2,'alpha',0.01,'tail','left');
 [~, h(2,1)] = ranksum(a,c1,'alpha',0.01,'tail','right');
 [~, h(2,2)] = ranksum(a,c2,'alpha',0.01,'tail','right');
+
+h_output= h(1,:)-h(2,:);
+end
+
+function h_output = significance_test_average(only_data)
+a = only_data(:,1);
+c1 = only_data(:,4);
+c2 = only_data(:,5);
+
+[~, h(1,1)] = ranksum(a,c1,'alpha',0.001,'tail','left');
+[~, h(1,2)] = ranksum(a,c2,'alpha',0.001,'tail','left');
+[~, h(2,1)] = ranksum(a,c1,'alpha',0.001,'tail','right');
+[~, h(2,2)] = ranksum(a,c2,'alpha',0.001,'tail','right');
 
 h_output= h(1,:)-h(2,:);
 end

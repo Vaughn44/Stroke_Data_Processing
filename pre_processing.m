@@ -178,7 +178,11 @@ close all
 %     rhs(1)= 1; 
 % end
 
-hs_counter = 1;
+if lhs(1)>lto(1)
+    hs_counter = 1;
+else
+    hs_counter = 0;
+end
 to_counter = 1;
 state= 1;
 lcontact= zeros(frame_total,1);
@@ -202,8 +206,11 @@ for i= 2:frame_total
 end
 lcontact(1)= lcontact(2);
 
-% rhs(1)= [];
-hs_counter = 1;
+if rhs(1)>rto(1)
+    hs_counter = 1;
+else
+    hs_counter = 0;
+end
 to_counter = 1;
 state= 0;
 rcontact= zeros(frame_total,1);

@@ -162,12 +162,13 @@ for j= 1:6
 end
 for k = 1:3
     for j= 1:6
-        if height(data_gc{j,k}{1})<10
-            data_gc{j,k}(1)= [];
+        for i= 1:length(data_gc{j,k})
+            if height(data_gc{j,k}{i})<10
+                data_gc{j,k}(i)= [];
+            end
         end
     end
 end
-data_gc{3,3}(213)= [];
 %% Normalize wrt Time
 
 % Baseline
@@ -708,7 +709,7 @@ close all
 clc
 
 % Setup Plot
-j= 6; % Subject Number
+j= 2; % Subject Number
 figure; set(gcf,'color','w','Position',[-1452 86 1440 723]); hold on;
 subplot(3,4,1); hold on;
 main_title= sgtitle(['Subject ' num2str(j)  ' | \color[rgb]{0 .4471 .7647} Perturbed Side \color{black}| ' '\color[rgb]{.8 .2078 .1451} Paretic Side \color{black}| '  num2str(dur(j)/60) ' minutes | ' num2str(TS(j)) ' m/s']);
@@ -755,26 +756,28 @@ ylabel_input= 'Activation Level (%)';
 plot_number_input= 6;
 box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
 
-title_input= 'Average VA Activation';
-healthy_data_input= par.va_healthy(j,:);
-paretic_data_input= par.va_paretic(j,:);
-ylabel_input= 'Activation Level (%)';
-plot_number_input= 7;
-box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
-
-title_input= 'Average RF Activation';
-healthy_data_input= par.rf_healthy(j,:);
-paretic_data_input= par.rf_paretic(j,:);
-ylabel_input= 'Activation Level (%)';
-plot_number_input= 8;
-box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
-
-title_input= 'Average BF Activation';
-healthy_data_input= par.bf_healthy(j,:);
-paretic_data_input= par.bf_paretic(j,:);
-ylabel_input= 'Activation Level (%)';
-plot_number_input= 9;
-box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
+if j==3 || j==4 || j==5 || j==6
+    title_input= 'Average VA Activation';
+    healthy_data_input= par.va_healthy(j,:);
+    paretic_data_input= par.va_paretic(j,:);
+    ylabel_input= 'Activation Level (%)';
+    plot_number_input= 7;
+    box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
+    
+    title_input= 'Average RF Activation';
+    healthy_data_input= par.rf_healthy(j,:);
+    paretic_data_input= par.rf_paretic(j,:);
+    ylabel_input= 'Activation Level (%)';
+    plot_number_input= 8;
+    box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
+    
+    title_input= 'Average BF Activation';
+    healthy_data_input= par.bf_healthy(j,:);
+    paretic_data_input= par.bf_paretic(j,:);
+    ylabel_input= 'Activation Level (%)';
+    plot_number_input= 9;
+    box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
+end
 
 title_input= 'TA Activation during Swing';
 healthy_data_input= par.ta_swing_healthy(j,:);
@@ -1278,7 +1281,7 @@ for i= 1:14
     end
 end
 
-figure; set(gcf,'color','w','position',[-2122 425 2221 345]); hold on;
+figure; set(gcf,'color','w','position',[-62 410 1924 420]); hold on;
 subplot(1,5,1); hold on;
 boxplot(box_data,'outliersize',4)
 set(findobj(gca,'type','line'),'linew',1)
@@ -2207,17 +2210,17 @@ y2= ax(4)*1.25;
 axis([ax(1) ax(2) ax(3) ax(4)*1.5])
 if signif(1) == 1
     plot([1 7],[y1 y1],'color',purple,'LineWidth',1)
-    text(mean([1 7]),mean([y1 y2]),'/\','fontsize',8,'color',purple)
+    text(mean([1 7]),mean([y1 y2]),'\boldmath$\star \uparrow$','fontsize',8,'color',purple,'interpreter','latex')
 elseif signif(1) == -1
     plot([1 7],[y1 y1],'color',purple,'LineWidth',1)
-    text(mean([1 7]),mean([y1 y2]),'\/','fontsize',8,'color',purple)
+    text(mean([1 7]),mean([y1 y2]),'\boldmath$\star \downarrow$','fontsize',8,'color',purple,'interpreter','latex')
 end
 if signif(2) == -1
     plot([1 9],[y2 y2],'color',purple,'LineWidth',1)
-    text(mean([1 9]),mean([y2 ax(4)*1.5]),'\/','fontsize',8,'color',purple)
+    text(mean([1 9]),mean([y2 ax(4)*1.5]),'\boldmath$\star \downarrow$','fontsize',8,'color',purple,'interpreter','latex')
 elseif signif(2) == 1
     plot([1 9],[y2 y2],'color',purple,'LineWidth',1)
-    text(mean([1 9]),mean([y2 ax(4)*1.5]),'/\','fontsize',8,'color',purple)
+    text(mean([1 9]),mean([y2 ax(4)*1.5]),'\boldmath$\star \uparrow$','fontsize',8,'color',purple,'interpreter','latex')
 end
 
 xticks([])
@@ -2290,33 +2293,33 @@ y5= ax(4)*1.45;
 signif= significance_test(left_data);
 if signif(1) == 1
     plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
-    text(mean([1 10]),mean([y1 y2]),'/\','fontsize',8,'color',blue)
+    text(mean([1 10]),mean([y1 y2]),'\boldmath$\star \uparrow$','fontsize',8,'color',blue,'interpreter','latex')
 elseif signif(1) == -1
     plot([1 10],[y1 y1],'color',blue,'LineWidth',1)
-    text(mean([1 10]),mean([y1 y2]),'\/','fontsize',8,'color',blue)
+    text(mean([1 10]),mean([y1 y2]),'\boldmath$\star \downarrow$','fontsize',8,'color',blue,'interpreter','latex')
 end
 if signif(2) == -1
     plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
-    text(mean([1 13]),mean([y2 y3]),'\/','fontsize',8,'color',blue)
+    text(mean([1 13]),mean([y2 y3]),'\boldmath$\star \downarrow$','fontsize',8,'color',blue,'interpreter','latex')
 elseif signif(2) == 1
     plot([1 13],[y2 y2],'color',blue,'LineWidth',1)
-    text(mean([1 13]),mean([y2 y3]),'/\','fontsize',8,'color',blue)
+    text(mean([1 13]),mean([y2 y3]),'\boldmath$\star \uparrow$','fontsize',8,'color',blue,'interpreter','latex')
 end
 
 signif= significance_test(right_data);
 if signif(1) == 1
     plot([2 11],[y3 y3],'color',red,'LineWidth',1)
-    text(mean([2 11]),mean([y3 y4]),'/\','fontsize',8,'color',red)
+    text(mean([2 11]),mean([y3 y4]),'\boldmath$\star \uparrow$','fontsize',8,'color',red,'interpreter','latex')
 elseif signif(1) == -1
     plot([2 11],[y3 y3],'color',red,'LineWidth',1)
-    text(mean([2 11]),mean([y3 y4]),'\/','fontsize',8,'color',red)
+    text(mean([2 11]),mean([y3 y4]),'\boldmath$\star \downarrow$','fontsize',8,'color',red,'interpreter','latex')
 end
 if signif(2) == -1
     plot([2 14],[y4 y4],'color',red,'LineWidth',1)
-    text(mean([2 14]),mean([y4 y5]),'\/','fontsize',8,'color',red)
+    text(mean([2 14]),mean([y4 y5]),'\boldmath$\star \downarrow$','fontsize',8,'color',red,'interpreter','latex')
 elseif signif(2) == 1
     plot([2 14],[y4 y4],'color',red,'LineWidth',1)
-    text(mean([2 14]),mean([y4 y5]),'/\','fontsize',8,'color',red)
+    text(mean([2 14]),mean([y4 y5]),'\boldmath$\star \uparrow$','fontsize',8,'color',red,'interpreter','latex')
 end
 
 end
@@ -2640,10 +2643,10 @@ a = only_data(:,1);
 c1 = only_data(:,4);
 c2 = only_data(:,5);
 
-[~, h(1,1)] = ranksum(a,c1,'alpha',0.001,'tail','left');
-[~, h(1,2)] = ranksum(a,c2,'alpha',0.001,'tail','left');
-[~, h(2,1)] = ranksum(a,c1,'alpha',0.001,'tail','right');
-[~, h(2,2)] = ranksum(a,c2,'alpha',0.001,'tail','right');
+[~, h(1,1)] = ranksum(a,c1,'alpha',0.01,'tail','left');
+[~, h(1,2)] = ranksum(a,c2,'alpha',0.01,'tail','left');
+[~, h(2,1)] = ranksum(a,c1,'alpha',0.01,'tail','right');
+[~, h(2,2)] = ranksum(a,c2,'alpha',0.01,'tail','right');
 
 h_output= h(1,:)-h(2,:);
 end

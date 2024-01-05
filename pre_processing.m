@@ -12,11 +12,11 @@
 % Cut wrt. gait cycle
 
 % for subject_number= 1:6
-subject_number= 1;   
+subject_number= 3;   
 
 clearvars -except subject_number
 close all;
-clc
+% clc
 
 dur= [10 12 12 10 12 12]*60; %s
 paretic_side= {'L' 'R' 'L' 'R' 'L' 'R'};
@@ -119,7 +119,7 @@ end
 
 clear ind rhs_fm
 signal= smooth(force_right,10);
-[~, ind(:,1)]= findpeaks(-signal,'MinPeakHeight',-350,'MinPeakWidth',0.65,'MinPeakDistance',100);
+[~, ind(:,1)]= findpeaks(-signal,'MinPeakHeight',-1100,'MinPeakWidth',0.65,'MinPeakDistance',100);
 % figure; hold on;
 % plot(signal)
 % plot(ind,signal(ind),'rx')
@@ -135,22 +135,21 @@ if subject_number == 3
     rhs_fm(221)= 36470;
 end
 
-figure; set(gcf,'color','w'); hold on;
-subplot(2,2,1); hold on;
-plot(data.lhee_y);
-plot(lhs_vespa,data.lhee_y(lhs_vespa),'rx');
-plot(lhs_fm,data.lhee_y(lhs_fm),'gx');
-legend('Sagittal Postion','F-VESPA','Force Mats')
-subplot(2,2,2); hold on;
-plot(data.rhee_y);
-plot(rhs_vespa,data.rhee_y(rhs_vespa),'rx');
-plot(rhs_fm,data.rhee_y(rhs_fm),'gx');
-legend('Sagittal Postion','F-VESPA','Force Mats')
-subplot(2,2,3); hold on;
-plot(diff(lhs_fm))
-subplot(2,2,4); hold on;
-plot(diff(rhs_fm))
-return
+% figure; set(gcf,'color','w'); hold on;
+% subplot(2,2,1); hold on;
+% plot(data.lhee_y);
+% plot(lhs_vespa,data.lhee_y(lhs_vespa),'rx');
+% plot(lhs_fm,data.lhee_y(lhs_fm),'gx');
+% legend('Sagittal Postion','F-VESPA','Force Mats')
+% subplot(2,2,2); hold on;
+% plot(data.rhee_y);
+% plot(rhs_vespa,data.rhee_y(rhs_vespa),'rx');
+% plot(rhs_fm,data.rhee_y(rhs_fm),'gx');
+% legend('Sagittal Postion','F-VESPA','Force Mats')
+% subplot(2,2,3); hold on;
+% plot(diff(lhs_fm))
+% subplot(2,2,4); hold on;
+% plot(diff(rhs_fm))
 
 lhs= lhs_fm;
 rhs= rhs_fm;
@@ -262,12 +261,13 @@ end
 for i= 1:j
     emg_env(:,i)= sqrt(movmean((emg_rect(:,i).^2),window));
 end
+%%% stopped here
 for i= 1:j
-    mvc(i)= max(emg_env(:,i));
+    mvc(i)= prctile(emg_env(:,i),99.9); % find 99th percentile value
 end
-for i= 1:j/2
-    mvc(2*i-1:2*i)= max([mvc(2*i-1) mvc(2*i)]);
-end
+% for i= 1:j/2
+%     mvc(2*i-1:2*i)= mean([mvc(2*i-1) mvc(2*i)]);
+% end
 [b,a]= butter(4,5/fnyq,'low');
 for i= 1:j
     emg_filt(:,i)= filtfilt(b,a,emg_env(:,i));
@@ -334,7 +334,30 @@ for i= 1:frame_total
         fm_grid_right{i}(y_limits(2):end,:) = 0; % all cells too far forward
     end
 end
-    
+
+%% Scale Forcemat Data
+weight= [56 88.45 81.64 72.57 117 74.84]*9.81;
+% scaling_factor= [1 1 1 1 1 1];
+% C= scaling_factor(subject_number);
+for i= 1:length(fm_grid)
+    force_left(i,1)= sum(fm_grid_left{i},'all');
+    force_right(i,1)= sum(fm_grid_right{i},'all');
+end
+
+clear ind
+[left_force_peaks, ind(:,1)]= findpeaks(smooth(force_left),'MinPeakHeight',3000,'MinPeakWidth',0.65,'MinPeakDistance',100);
+clear ind
+[right_force_peaks, ind(:,1)]= findpeaks((force_right),'MinPeakHeight',3000,'MinPeakWidth',0.65,'MinPeakDistance',100);
+
+mean_force_peak= mean([left_force_peaks; right_force_peaks]);
+C= weight(subject_number)/mean_force_peak;
+
+for i= 1:frame_total
+    fm_grid_left{i}= fm_grid_left{i}*C;
+    fm_grid_right{i}= fm_grid_right{i}*C;
+end
+
+%%  
 for i= 1:frame_total
     fm_grid{i}= [fm_grid_left{i} fm_grid_right{i}];
 end
@@ -392,21 +415,22 @@ fm_add= [COP_x COP_y fm_force COP_x_left COP_y_left fm_force_left COP_x_right CO
 data= addvars(data,fm_add(:,1),fm_add(:,2),fm_add(:,3),fm_add(:,4),fm_add(:,5),fm_add(:,6),fm_add(:,7),fm_add(:,8),fm_add(:,9),'NewVariableNames',{'cop_x','cop_y','force','cop_x_left','cop_y_left','force_left','cop_x_right','cop_y_right','force_right'});
 clear cop_x cop_y total_force COP_x COP_y fm_force fm_raw fm_grid_left fm_grid_right fm_data_upsampled fm_data
 %% Check for Forcemat Saturation
-for i= 1:length(fm_grid)
-    max_force(i,1)= max(fm_grid{i},[],'all');
-end
-figure; set(gcf,'color','w'); hold on;
-plot(max_force)
-plot([0 length(fm_grid)],[255 255],'-r','LineWidth',2)
-legend('Max Value','Saturation Value')
-xlabel('Time Steps')
-ylabel('Cell Value')
-title(['Saturation Check (Subject ' num2str(subject_number) ')'])
+% for i= 1:length(fm_grid)
+%     max_force(i,1)= max(fm_grid{i},[],'all');
+% end
+% figure; set(gcf,'color','w'); hold on;
+% plot(max_force)
+% plot([0 length(fm_grid)],[255 255],'-r','LineWidth',2)
+% legend('Max Value','Saturation Value')
+% xlabel('Time Steps')
+% ylabel('Cell Value')
+% title(['Saturation Check (Subject ' num2str(subject_number) ')'])
 %% Export
 save([folder '/' output_file_name],'data')
-save([folder '/fm_' output_file_name],'fm_grid','-v7.3')
+% save([folder '/fm_' output_file_name],'fm_grid','-v7.3')
 subject_number
-% end
+
+return
 %% Combine data into one .mat file
 clear all
 close all

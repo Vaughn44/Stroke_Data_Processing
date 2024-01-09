@@ -59,6 +59,18 @@ for j= 1:6
     data{j}= addvars(data{j}, laoa, lh2as, raoa, rh2as, 'After','rhip_z','NewVariableNames',{'laoa','lh2as','raoa','rh2as'});
     clear laoa raoa lh2as rh2as
 end
+%% Calculate Limb Orientation Angle
+v= [0 -1]; % Vertical reference
+for j= 1:6
+    for i=1:height(data{j})
+        tempL= [data{j}.('ltoe_y')(i)-data{j}.('lhip_y')(i) data{j}.('ltoe_z')(i)-data{j}.('lhip_z')(i)];
+        lorientation(i,1)= sign(tempL(1))*acosd(dot(tempL,v)/(norm(tempL)*norm(v)));
+        tempR= [data{j}.('rtoe_y')(i)-data{j}.('rhip_y')(i) data{j}.('rtoe_z')(i)-data{j}.('rhip_z')(i)];
+        rorientation(i,1)= sign(tempR(1))*acosd(dot(tempR,v)/(norm(tempR)*norm(v)));
+    end
+    data{j}= addvars(data{j}, laoa, lh2as, raoa, rh2as, 'After','rhip_z','NewVariableNames',{'lorientation','rorientation'});
+    clear laoa raoa lh2as rh2as
+end
 %% Hip Angles Redo
 v= [0 1]; % Vertical reference
 for j= 1:6
@@ -554,6 +566,12 @@ for j= 1:6
         for i= 1:5
             par.cop_path{j,i}(:,1)= -par.cop_path{j,i}(:,1);
         end
+    end
+end
+%% Limb Phasing
+for j= 1
+    for i= 1
+    
     end
 end
 %% Return

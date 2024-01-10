@@ -44,6 +44,7 @@ redm= [204/255,53/255,37/255];
 purple= [163/255 41/255 214/255 1];
 purplet= [163/255 41/255 214/255 .1];
 purplem= [163/255 41/255 214/255];
+SPAN= 30;
 %% Calculate AoA & H2AS
 g= [1 0]; % Ground reference
 for j= 1:6
@@ -369,18 +370,26 @@ for k= 1:3
         for i= 1:L(j,k)
             if paretic_side{j} == 'R'
                 temp= find(data_gc{j,k}{i}.rcontact == 1); % right stance
+                [~,ind]= max(diff(temp));
+                temp= [temp(ind+1:end); temp(1:ind)];
+                temp= temp(round(length(temp)/2):end);% 2nd half of right stance
                 par.ga_pushoff_paretic{j,k}(i,1)= max(data_gc{j,k}{i}.rga(temp));
-                par.force_paretic{j,k}(i,1)= mean(data_gc{j,k}{i}.force_right(temp));
+                par.force_paretic{j,k}(i,1)= max(data_gc{j,k}{i}.force_right(temp));
                 temp= find(data_gc{j,k}{i}.lcontact == 1); % left stance
+                temp= temp(round(length(temp)/2):end); % 2nd half of left stance
                 par.ga_pushoff_healthy{j,k}(i,1)= max(data_gc{j,k}{i}.lga(temp));
-                par.force_healthy{j,k}(i,1)= mean(data_gc{j,k}{i}.force_left(temp));
+                par.force_healthy{j,k}(i,1)= max(data_gc{j,k}{i}.force_left(temp));
             elseif paretic_side{j} == 'L'
                 temp= find(data_gc{j,k}{i}.rcontact == 1); % right stance
+                temp= temp(round(length(temp)/2):end); % 2nd half of right stance
                 par.ga_pushoff_healthy{j,k}(i,1)= max(data_gc{j,k}{i}.rga(temp));
-                par.force_healthy{j,k}(i,1)= mean(data_gc{j,k}{i}.force_right(temp));
+                par.force_healthy{j,k}(i,1)= max(data_gc{j,k}{i}.force_right(temp));
                 temp= find(data_gc{j,k}{i}.lcontact == 1); % left stance
+                [~,ind]= max(diff(temp));
+                temp= [temp(ind+1:end); temp(1:ind)];
+                temp= temp(round(length(temp)/2):end); % 2nd half of left stance
                 par.ga_pushoff_paretic{j,k}(i,1)= max(data_gc{j,k}{i}.lga(temp));
-                par.force_paretic{j,k}(i,1)= mean(data_gc{j,k}{i}.force_left(temp));
+                par.force_paretic{j,k}(i,1)= max(data_gc{j,k}{i}.force_left(temp));
             end
         end
     end
@@ -519,7 +528,7 @@ for k= 1:3
     end
 end
 
-% CoP Path
+% CoP Path (Left = Healthy, Right = Paretic)
 gc_window= 30;
 for j= 1:6
     clear cop
@@ -527,27 +536,27 @@ for j= 1:6
         % Late Baseline
         com_x= mean([data_gc_normalized{j,1}{end-gc_window+i}.lasi_x data_gc_normalized{j,1}{end-gc_window+i}.rasi_x data_gc_normalized{j,1}{end-gc_window+i}.lpsi_x data_gc_normalized{j,1}{end-gc_window+i}.rpsi_x ],2);
         com_y= mean([data_gc_normalized{j,1}{end-gc_window+i}.lasi_y data_gc_normalized{j,1}{end-gc_window+i}.rasi_y data_gc_normalized{j,1}{end-gc_window+i}.lpsi_y data_gc_normalized{j,1}{end-gc_window+i}.rpsi_y ],2);
-        cop.x1(:,i)= data_gc_normalized{j,1}{end-gc_window+i}.cop_x - com_x;
+        cop.x1(:,i)= data_gc_normalized{j,1}{end-gc_window+i}.cop_x;
         cop.y1(:,i)= data_gc_normalized{j,1}{end-gc_window+i}.cop_y - com_y;
         % Early Adaptation
         com_x= mean([data_gc_normalized{j,2}{i}.lasi_x data_gc_normalized{j,2}{i}.rasi_x data_gc_normalized{j,2}{i}.lpsi_x data_gc_normalized{j,2}{i}.rpsi_x ],2);
         com_y= mean([data_gc_normalized{j,2}{i}.lasi_y data_gc_normalized{j,2}{i}.rasi_y data_gc_normalized{j,2}{i}.lpsi_y data_gc_normalized{j,2}{i}.rpsi_y ],2);
-        cop.x2(:,i)= data_gc_normalized{j,2}{i}.cop_x - com_x;
+        cop.x2(:,i)= data_gc_normalized{j,2}{i}.cop_x;
         cop.y2(:,i)= data_gc_normalized{j,2}{i}.cop_y - com_y;
         % Late Adaptation
         com_x= mean([data_gc_normalized{j,2}{end-gc_window+i}.lasi_x data_gc_normalized{j,2}{end-gc_window+i}.rasi_x data_gc_normalized{j,2}{end-gc_window+i}.lpsi_x data_gc_normalized{j,2}{end-gc_window+i}.rpsi_x ],2);
         com_y= mean([data_gc_normalized{j,2}{end-gc_window+i}.lasi_y data_gc_normalized{j,2}{end-gc_window+i}.rasi_y data_gc_normalized{j,2}{end-gc_window+i}.lpsi_y data_gc_normalized{j,2}{end-gc_window+i}.rpsi_y ],2);
-        cop.x3(:,i)= data_gc_normalized{j,2}{end-gc_window+i}.cop_x - com_x;
+        cop.x3(:,i)= data_gc_normalized{j,2}{end-gc_window+i}.cop_x;
         cop.y3(:,i)= data_gc_normalized{j,2}{end-gc_window+i}.cop_y - com_y;
         % Early Observation
         com_x= mean([data_gc_normalized{j,3}{i}.lasi_x data_gc_normalized{j,3}{i}.rasi_x data_gc_normalized{j,3}{i}.lpsi_x data_gc_normalized{j,3}{i}.rpsi_x ],2);
         com_y= mean([data_gc_normalized{j,3}{i}.lasi_y data_gc_normalized{j,3}{i}.rasi_y data_gc_normalized{j,3}{i}.lpsi_y data_gc_normalized{j,3}{i}.rpsi_y ],2);
-        cop.x4(:,i)= data_gc_normalized{j,3}{i}.cop_x - com_x;
+        cop.x4(:,i)= data_gc_normalized{j,3}{i}.cop_x;
         cop.y4(:,i)= data_gc_normalized{j,3}{i}.cop_y - com_y;
         % Late Observation
         com_x= mean([data_gc_normalized{j,3}{end-gc_window+i}.lasi_x data_gc_normalized{j,3}{end-gc_window+i}.rasi_x data_gc_normalized{j,3}{end-gc_window+i}.lpsi_x data_gc_normalized{j,3}{end-gc_window+i}.rpsi_x ],2);
         com_y= mean([data_gc_normalized{j,3}{end-gc_window+i}.lasi_y data_gc_normalized{j,3}{end-gc_window+i}.rasi_y data_gc_normalized{j,3}{end-gc_window+i}.lpsi_y data_gc_normalized{j,3}{end-gc_window+i}.rpsi_y ],2);
-        cop.x5(:,i)= data_gc_normalized{j,3}{end-gc_window+i}.cop_x - com_x;
+        cop.x5(:,i)= data_gc_normalized{j,3}{end-gc_window+i}.cop_x;
         cop.y5(:,i)= data_gc_normalized{j,3}{end-gc_window+i}.cop_y - com_y;
     end
     par.cop_path{j,1}= [mean(cop.x1,2) mean(cop.y1,2)];
@@ -564,8 +573,35 @@ end
 for j= 1:6
     if ismember(paretic_side{j},'L')
         for i= 1:5
-            par.cop_path{j,i}(:,1)= -par.cop_path{j,i}(:,1);
+            par.cop_path{j,i}(:,1)= -par.cop_path{j,i}(:,1) + min(par.cop_path{j,i}(:,1)) + max(par.cop_path{j,i}(:,1));
         end
+    end
+end
+
+% CoP Parameters
+for j= 1:6
+    for k= 1:5
+        tempx= par.cop_path{j,k}(:,1);
+        tempy= par.cop_path{j,k}(:,2);
+%         close all
+%         figure; hold on; axis equal
+%         plot(tempx(1:50),tempy(1:50))
+%         plot(tempx(51:101),tempy(51:101))
+        intersection= InterX([tempx(1:50)'; tempy(1:50)'],[tempx(51:100)'; tempy(51:100)']);
+        left= tempx < intersection(1);
+        right= tempx > intersection(1);
+        healthy_anterior= max(tempy(left));
+        paretic_anterior= max(tempy(right));
+        healthy_posterior= min(tempy(left));
+        paretic_posterior= min(tempy(right));
+        healthy_lateral= min(tempx);
+        paretic_lateral= max(tempx);
+        
+        par.healthy_c1(j,k)= healthy_anterior-healthy_posterior;
+        par.paretic_c1(j,k)= paretic_anterior-paretic_posterior;
+        par.healthy_c2(j,k)= healthy_anterior-paretic_posterior;
+        par.paretic_c2(j,k)= paretic_anterior-healthy_posterior;
+        par.lateral_symmetry(j,k)= mean([paretic_lateral healthy_lateral]) - intersection(1);
     end
 end
 %% Limb Phasing
@@ -771,7 +807,7 @@ close all
 clc
 
 % Setup Plot
-j= 2; % Subject Number
+j= 1; % Subject Number
 figure; set(gcf,'color','w','Position',[-1452 86 1440 723]); hold on;
 subplot(3,4,1); hold on;
 main_title= sgtitle(['Subject ' num2str(j)  ' | \color[rgb]{0 .4471 .7647} Perturbed Side \color{black}| ' '\color[rgb]{.8 .2078 .1451} Paretic Side \color{black}| '  num2str(dur(j)/60) ' minutes | ' num2str(TS(j)) ' m/s']);
@@ -818,7 +854,7 @@ ylabel_input= 'Activation Level (%)';
 plot_number_input= 6;
 box_whisker_plot(healthy_data_input,paretic_data_input,title_input,ylabel_input,plot_number_input)
 
-if j==3 || j==4 || j==5 || j==6
+if j==2 | j==3 || j==4 || j==5 || j==6
     title_input= 'Average VA Activation';
     healthy_data_input= par.va_healthy(j,:);
     paretic_data_input= par.va_paretic(j,:);
@@ -2034,8 +2070,6 @@ saveas(gcf,'Fig_CoP.png')
 % Average Muscle Activty for all 5 muscles - Box & Whisker
 % Push Off Force Average - Box & Whisker
 % 2 Representative (Good & Bad) CoP Path Plot
-%% DISCUSSION
-
 %% Functions
 function avg_single_box_whisker_plot(parameter_of_interest,plot_title,plot_ylabel,subplot_number)
 blue= [0,114/255,195/255,1];
@@ -2410,34 +2444,17 @@ par3y= only_data{3}(:,2);
 par4y= only_data{4}(:,2);
 par5y= only_data{5}(:,2);
 
-par1xf= smooth(par1x);
-par2xf= smooth(par2x);
-par3xf= smooth(par3x);
-par4xf= smooth(par4x);
-par5xf= smooth(par5x);
-par1yf= smooth(par1y);
-par2yf= smooth(par2y);
-par3yf= smooth(par3y);
-par4yf= smooth(par4y);
-par5yf= smooth(par5y);
-
 colororder('default');
 
 subplot(3,4,subplot_number); hold on;
-plot(par1xf,par1yf,'LineWidth',2)
-% plot(par2xf,par2yf,'LineWidth',2)
-% plot(par3xf,par3yf,'LineWidth',2)
-plot(par4xf,par4yf,'LineWidth',2)
-plot(par5xf,par5yf,'LineWidth',2)
-% plot(par1x,par1y,'LineWidth',2)
-% plot(par2x,par2y,'LineWidth',2)
-% plot(par3x,par3y,'LineWidth',2)
-% plot(par4x,par4y,'LineWidth',2)
-% plot(par5x,par5y,'LineWidth',2)
+plot(par1x,par1y,'LineWidth',2)
+plot(par4x,par4y,'LineWidth',2)
+plot(par5x,par5y,'LineWidth',2)
+
 axis equal
-axis manual
-plot([-1000 1000],[0 0],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
-plot([0 0],[-1000 1000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+% axis manual
+% plot([-1000 1000],[0 0],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
+% plot([0 0],[-1000 1000],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')
 % legend('Baseline','Early Adapt','Late Adapt','Early Obs','Late Obs','Position',[0.90827 0.23599 0.076389 0.11203])
 legend('Baseline','Early Obs','Late Obs','Position',[0.90827 0.23599 0.076389 0.11203])
 title(plot_title)
@@ -2692,10 +2709,10 @@ a = only_data{1}(end-SPAN+1:end);
 c1 = only_data{3}(1:SPAN);
 c2 = only_data{3}(end-SPAN+1:end);
 
-[~, h(1,1)] = ranksum(a,c1,'alpha',0.01,'tail','left');
-[~, h(1,2)] = ranksum(a,c2,'alpha',0.01,'tail','left');
-[~, h(2,1)] = ranksum(a,c1,'alpha',0.01,'tail','right');
-[~, h(2,2)] = ranksum(a,c2,'alpha',0.01,'tail','right');
+[~, h(1,1)] = ranksum(a,c1,'alpha',0.05,'tail','left');
+[~, h(1,2)] = ranksum(a,c2,'alpha',0.05,'tail','left');
+[~, h(2,1)] = ranksum(a,c1,'alpha',0.05,'tail','right');
+[~, h(2,2)] = ranksum(a,c2,'alpha',0.05,'tail','right');
 
 h_output= h(1,:)-h(2,:);
 end
@@ -2705,10 +2722,10 @@ a = only_data(:,1);
 c1 = only_data(:,4);
 c2 = only_data(:,5);
 
-[~, h(1,1)] = ranksum(a,c1,'alpha',0.01,'tail','left');
-[~, h(1,2)] = ranksum(a,c2,'alpha',0.01,'tail','left');
-[~, h(2,1)] = ranksum(a,c1,'alpha',0.01,'tail','right');
-[~, h(2,2)] = ranksum(a,c2,'alpha',0.01,'tail','right');
+[~, h(1,1)] = ranksum(a,c1,'alpha',0.05,'tail','left');
+[~, h(1,2)] = ranksum(a,c2,'alpha',0.05,'tail','left');
+[~, h(2,1)] = ranksum(a,c1,'alpha',0.05,'tail','right');
+[~, h(2,2)] = ranksum(a,c2,'alpha',0.05,'tail','right');
 
 h_output= h(1,:)-h(2,:);
 end

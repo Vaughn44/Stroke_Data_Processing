@@ -68,8 +68,8 @@ for j= 1:6
         tempR= [data{j}.('rtoe_y')(i)-data{j}.('rhip_y')(i) data{j}.('rtoe_z')(i)-data{j}.('rhip_z')(i)];
         rorientation(i,1)= sign(tempR(1))*acosd(dot(tempR,v)/(norm(tempR)*norm(v)));
     end
-    data{j}= addvars(data{j}, laoa, lh2as, raoa, rh2as, 'After','rhip_z','NewVariableNames',{'lorientation','rorientation'});
-    clear laoa raoa lh2as rh2as
+    data{j}= addvars(data{j},lorientation,rorientation,'After','rhip_z','NewVariableNames',{'lorientation','rorientation'});
+    clear lorientation rorientation
 end
 %% Hip Angles Redo
 v= [0 1]; % Vertical reference
@@ -569,10 +569,54 @@ for j= 1:6
     end
 end
 %% Limb Phasing
-for j= 1
-    for i= 1
-    
+for j= 1:6
+    [l_flexion_values,l_flexion_ind]= findpeaks(data{j}.lorientation,'MinPeakHeight',14);
+    [r_flexion_values,r_flexion_ind]= findpeaks(data{j}.rorientation,'MinPeakHeight',14);
+    [l_extension_values,l_extension_ind]= findpeaks(-data{j}.lorientation,'MinPeakHeight',-10,'MinPeakDistance',100);
+    l_extension_values= -l_extension_values;
+    [r_extension_values,r_extension_ind]= findpeaks(-data{j}.rorientation,'MinPeakHeight',-10,'MinPeakDistance',100);
+    r_extension_values= -r_extension_values;
+    if paretic_side{j} == 'L'
+        for i= 1:length(r_extension_ind)-1
+            h_e2= r_extension_ind(i+1);
+            h_e1= r_extension_ind(i);
+            if r_flexion_ind(1) < r_extension_ind(1)
+                h_f= r_flexion_ind(i+1);
+            else
+                h_f= r_flexion_ind(i);
+            end
+            p_e= l_extension_ind(i+1);
+            P_e= (p_e-h_e1)/(h_e2-h_e1);
+            if p_e > h_f
+                phase_shift{j}(i,1)= (P_e - 0.5)/2 * (1-0.5) + 0.5;
+            elseif p_e <= h_f
+                phase_shift{j}(i,1)= (P_e - 0)/2 * (0.5 - 0);
+            end
+        end
+    elseif paretic_side{j} == 'R'
+        for i= 1:length(l_extension_ind)-1
+            h_e2= l_extension_ind(i+1);
+            h_e1= l_extension_ind(i);
+            h_f= l_flexion_ind(i);
+            if r_extension_ind(1) > l_extension_ind(1)
+                p_e= r_extension_ind(i);
+            else
+                p_e= r_extension_ind(i+1);
+            end
+            P_e= (p_e-h_e1)/(h_e2-h_e1);
+            if p_e > h_f
+                phase_shift{j}(i,1)= (P_e - 0.5)/2 * (1-0.5) + 0.5;
+            elseif p_e <= h_f
+                phase_shift{j}(i,1)= (P_e - 0)/2 * (0.5 - 0);
+            end
+        end 
     end
+end
+
+figure; hold on;
+for j= 1:6
+    subplot(2,3,j)
+    plot(phase_shift{j})
 end
 %% Return
 return

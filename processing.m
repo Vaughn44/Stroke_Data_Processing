@@ -573,12 +573,34 @@ for j= 1:6
     par.cop_path{j,5}= [par.cop_path{j,5};par.cop_path{j,5}(1,:)];
 end
 for j= 1:6
-    if ismember(paretic_side{j},'L')
+    if paretic_side{j} == 'L'
         for i= 1:5
             par.cop_path{j,i}(:,1)= -par.cop_path{j,i}(:,1) + min(par.cop_path{j,i}(:,1)) + max(par.cop_path{j,i}(:,1));
         end
     end
 end
+
+% Individual CoP Path (Left = Healthy, Right = Paretic)
+for k= 1:3
+    for j= 1:6
+        for i= 1:L(j,k)
+            com_y= mean([data_gc_normalized{j,k}{i}.lasi_y data_gc_normalized{j,k}{i}.rasi_y data_gc_normalized{j,k}{i}.lpsi_y data_gc_normalized{j,k}{i}.rpsi_y],2);
+            cop_x= data_gc_normalized{j,k}{i}.cop_x;
+            cop_y= data_gc_normalized{j,k}{i}.cop_y;
+            par.cop_path_ind{j,k}{i,1}= [cop_x cop_y-com_y];
+        end
+    end
+end
+for j= 1:6
+    if paretic_side{j} == 'L'
+        for k= 1:3
+            for i= 1:L(j,k)
+                par.cop_path_ind{j,k}{i,1}(:,1)= -par.cop_path_ind{j,k}{i}(:,1) + min(par.cop_path_ind{j,k}{i}(:,1)) + max(par.cop_path_ind{j,k}{i}(:,1));
+            end
+        end
+    end
+end
+
 
 % CoP Parameters
 for j= 1:6
@@ -604,6 +626,31 @@ for j= 1:6
         par.healthy_c2(j,k)= healthy_anterior-paretic_posterior;
         par.paretic_c2(j,k)= paretic_anterior-healthy_posterior;
         par.lateral_symmetry(j,k)= mean([paretic_lateral healthy_lateral]) - intersection(1);
+    end
+end
+
+% Individual CoP Parameters
+for k= 1:3
+    for j= 1:6
+        for i= 1:L(j,k)
+            tempx= par.cop_path_ind{j,k}{i}(:,1);
+            tempy= par.cop_path_ind{j,k}{i}(:,2);
+            intersection= InterX([tempx(1:50)'; tempy(1:50)'],[tempx(51:100)'; tempy(51:100)']);
+            intersection= intersection(:,1);
+            left= tempx < intersection(1);
+            right= tempx > intersection(1);
+            healthy_anterior= max(tempy(left));
+            paretic_anterior= max(tempy(right));
+            healthy_posterior= min(tempy(left));
+            paretic_posterior= min(tempy(right));
+            healthy_lateral= min(tempx);
+            paretic_lateral= max(tempx);
+            par.healthy_c1_ind{j,k}(i,1)= healthy_anterior-healthy_posterior;
+            par.paretic_c1_ind{j,k}(i,1)= paretic_anterior-paretic_posterior;
+            par.healthy_c2_ind{j,k}(i,1)= healthy_anterior-paretic_posterior;
+            par.paretic_c2_ind{j,k}(i,1)= paretic_anterior-healthy_posterior;
+            par.lateral_symmetry_ind{j,k}(i,1)= mean([paretic_lateral healthy_lateral]) - intersection(1);
+        end
     end
 end
 %% Limb Phasing
@@ -2391,8 +2438,8 @@ axis([300 600 -150 150])
 % legend('Baseline','Early Adapt','Late Adapt','Early Obs','Late Obs','Position',[0.90827 0.23599 0.076389 0.11203])
 % legend('Baseline','Early Obs','Late Obs','Position',[0.79879 0.14558 0.094804 0.12619])
 title('Example Center of Pressure Path')
-xlabel('Medial/Lateral Position')
-ylabel('Anterior/Posterior Position')
+xlabel('Medial/Lateral Position (mm)')
+ylabel('Anterior/Posterior Position (mm)')
 saveas(gcf,'Fig_CoPPath.png')
 %% Muscle Activitly (Subject 2)
 % TA
@@ -2943,9 +2990,9 @@ end
 
 saveas(gcf,'Fig_MuscleActivity2.png')
 %% Extract Data for Supplementary Materials
-poi= par.bf_paretic;
+poi= par.lateral_symmetry_ind;
 poi_extract= [];
-for j= 2:6
+for j= 1:6
     significance(j,:)= significance_test(poi(j,:));
 end
 significance
@@ -2981,8 +3028,6 @@ for_copy{2,1}= ...
     ' & ' poi_extract{6,1}...
     ' & ' poi_extract{6,2}...
     ' & ' poi_extract{6,3} ' \\']
-
-
 %% Functions
 function avg_single_box_whisker_plot(parameter_of_interest,plot_title,plot_ylabel,subplot_number)
 blue= [0,114/255,195/255,1];
@@ -3401,7 +3446,7 @@ box on
 % legend('Baseline','Early Adapt','Late Adapt','Early Obs','Late Obs','Position',[0.90827 0.23599 0.076389 0.11203])
 legend('Baseline','Early Obs','Late Obs','Position',[0.79879 0.14558 0.094804 0.12619])
 title(plot_title)
-xlabel('Medial/Lateral Position')
+xlabel('Medial/Lateral Position (mm)')
 end
 
 function single_plot(only_data,transitions,x_limit,plot_title,plot_ylabel,subplot_number)

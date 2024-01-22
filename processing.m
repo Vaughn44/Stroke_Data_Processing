@@ -1376,9 +1376,9 @@ end
 
 saveas(gcf,'Fig_StanceSymmetry.png')
 %% Push-off Symmetry
-plot_title= 'Push-Off Force Asymmetry';
+plot_title= 'Push-Off (Vertical) GRF Asymmetry';
 data_input= par.force_diff;
-plot_ylabel= 'Vertical GRF (N)';
+plot_ylabel= 'Force (N)';
 
 poi= data_input;
 for j= 1:6
@@ -2260,10 +2260,10 @@ end
 saveas(gcf,'Fig_MuscleActivity.png')
 %% Push Off Force Average - Box & Whisker
 % Step Length
-plot_title= 'Push Off Force';
+plot_title= 'Push-Off (Vertical) GRF';
 healthy_data_input= par.force_healthy;
 paretic_data_input= par.force_paretic;
-plot_ylabel= 'Vertical GRF (N)';
+plot_ylabel= 'Force (N)';
 
 h_poi= healthy_data_input;
 for j= 1:6
@@ -2443,7 +2443,7 @@ ylabel('Anterior/Posterior Position (mm)')
 saveas(gcf,'Fig_CoPPath.png')
 %% Muscle Activitly (Subject 2)
 % TA
-plot_title= 'Tibialis Anterior';
+plot_title= 'Tibialis Anterior (TA)';
 healthy_data_input= par.ta_healthy;
 paretic_data_input= par.ta_paretic;
 plot_ylabel= 'Muscle Activity (%)';
@@ -2553,7 +2553,7 @@ elseif signif(2) == 1
 end
 
 % GA
-plot_title= 'Gastrocnemius';
+plot_title= 'Gastrocnemius (GA)';
 healthy_data_input= par.ga_healthy;
 paretic_data_input= par.ga_paretic;
 plot_ylabel= 'Muscle Activity (%)';
@@ -2662,7 +2662,7 @@ elseif signif(2) == 1
 end
 
 % VA
-plot_title= 'Vastus Medialis';
+plot_title= 'Vastus Medialis (VA)';
 healthy_data_input= par.va_healthy;
 paretic_data_input= par.va_paretic;
 plot_ylabel= 'Muscle Activity (%)';
@@ -2771,7 +2771,7 @@ elseif signif(2) == 1
 end
 
 % RF
-plot_title= 'Rectus Femoris';
+plot_title= 'Rectus Femoris (RF)';
 healthy_data_input= par.rf_healthy;
 paretic_data_input= par.rf_paretic;
 plot_ylabel= 'Muscle Activity (%)';
@@ -2880,7 +2880,7 @@ elseif signif(2) == 1
 end
 
 % BF
-plot_title= 'Biceps Femoris';
+plot_title= 'Biceps Femoris (BF)';
 healthy_data_input= par.bf_healthy;
 paretic_data_input= par.bf_paretic;
 plot_ylabel= 'Muscle Activity (%)';

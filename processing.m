@@ -533,33 +533,34 @@ end
 
 % CoP Path (Left = Healthy, Right = Paretic)
 gc_window= 30;
+cop_x_offset= 452.16;
 for j= 1:6
     clear cop
     for i= 1:gc_window
         % Late Baseline
         com_x= mean([data_gc_normalized{j,1}{end-gc_window+i}.lasi_x data_gc_normalized{j,1}{end-gc_window+i}.rasi_x data_gc_normalized{j,1}{end-gc_window+i}.lpsi_x data_gc_normalized{j,1}{end-gc_window+i}.rpsi_x ],2);
         com_y= mean([data_gc_normalized{j,1}{end-gc_window+i}.lasi_y data_gc_normalized{j,1}{end-gc_window+i}.rasi_y data_gc_normalized{j,1}{end-gc_window+i}.lpsi_y data_gc_normalized{j,1}{end-gc_window+i}.rpsi_y ],2);
-        cop.x1(:,i)= data_gc_normalized{j,1}{end-gc_window+i}.cop_x;
+        cop.x1(:,i)= data_gc_normalized{j,1}{end-gc_window+i}.cop_x - cop_x_offset;
         cop.y1(:,i)= data_gc_normalized{j,1}{end-gc_window+i}.cop_y - com_y;
         % Early Adaptation
         com_x= mean([data_gc_normalized{j,2}{i}.lasi_x data_gc_normalized{j,2}{i}.rasi_x data_gc_normalized{j,2}{i}.lpsi_x data_gc_normalized{j,2}{i}.rpsi_x ],2);
         com_y= mean([data_gc_normalized{j,2}{i}.lasi_y data_gc_normalized{j,2}{i}.rasi_y data_gc_normalized{j,2}{i}.lpsi_y data_gc_normalized{j,2}{i}.rpsi_y ],2);
-        cop.x2(:,i)= data_gc_normalized{j,2}{i}.cop_x;
+        cop.x2(:,i)= data_gc_normalized{j,2}{i}.cop_x - cop_x_offset; 
         cop.y2(:,i)= data_gc_normalized{j,2}{i}.cop_y - com_y;
         % Late Adaptation
         com_x= mean([data_gc_normalized{j,2}{end-gc_window+i}.lasi_x data_gc_normalized{j,2}{end-gc_window+i}.rasi_x data_gc_normalized{j,2}{end-gc_window+i}.lpsi_x data_gc_normalized{j,2}{end-gc_window+i}.rpsi_x ],2);
         com_y= mean([data_gc_normalized{j,2}{end-gc_window+i}.lasi_y data_gc_normalized{j,2}{end-gc_window+i}.rasi_y data_gc_normalized{j,2}{end-gc_window+i}.lpsi_y data_gc_normalized{j,2}{end-gc_window+i}.rpsi_y ],2);
-        cop.x3(:,i)= data_gc_normalized{j,2}{end-gc_window+i}.cop_x;
+        cop.x3(:,i)= data_gc_normalized{j,2}{end-gc_window+i}.cop_x - cop_x_offset;
         cop.y3(:,i)= data_gc_normalized{j,2}{end-gc_window+i}.cop_y - com_y;
         % Early Observation
         com_x= mean([data_gc_normalized{j,3}{i}.lasi_x data_gc_normalized{j,3}{i}.rasi_x data_gc_normalized{j,3}{i}.lpsi_x data_gc_normalized{j,3}{i}.rpsi_x ],2);
         com_y= mean([data_gc_normalized{j,3}{i}.lasi_y data_gc_normalized{j,3}{i}.rasi_y data_gc_normalized{j,3}{i}.lpsi_y data_gc_normalized{j,3}{i}.rpsi_y ],2);
-        cop.x4(:,i)= data_gc_normalized{j,3}{i}.cop_x;
+        cop.x4(:,i)= data_gc_normalized{j,3}{i}.cop_x - cop_x_offset;
         cop.y4(:,i)= data_gc_normalized{j,3}{i}.cop_y - com_y;
         % Late Observation
         com_x= mean([data_gc_normalized{j,3}{end-gc_window+i}.lasi_x data_gc_normalized{j,3}{end-gc_window+i}.rasi_x data_gc_normalized{j,3}{end-gc_window+i}.lpsi_x data_gc_normalized{j,3}{end-gc_window+i}.rpsi_x ],2);
         com_y= mean([data_gc_normalized{j,3}{end-gc_window+i}.lasi_y data_gc_normalized{j,3}{end-gc_window+i}.rasi_y data_gc_normalized{j,3}{end-gc_window+i}.lpsi_y data_gc_normalized{j,3}{end-gc_window+i}.rpsi_y ],2);
-        cop.x5(:,i)= data_gc_normalized{j,3}{end-gc_window+i}.cop_x;
+        cop.x5(:,i)= data_gc_normalized{j,3}{end-gc_window+i}.cop_x - cop_x_offset;
         cop.y5(:,i)= data_gc_normalized{j,3}{end-gc_window+i}.cop_y - com_y;
     end
     par.cop_path{j,1}= [mean(cop.x1,2) mean(cop.y1,2)];
@@ -2431,7 +2432,7 @@ par1y= data_input{5}(:,2);
 subplot(1,2,1); hold on;
 plot(par1x,par1y,'LineWidth',2)
 box on
-axis([300 600 -150 150])
+axis([-150 150 -150 150])
 % axis equal
 % axis manual
 % plot([-1000 1000],[0 0],'LineWidth',2,'color',[.3 .3 .3],'HandleVisibility','off')

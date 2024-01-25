@@ -45,6 +45,7 @@ purple= [163/255 41/255 214/255 1];
 purplet= [163/255 41/255 214/255 .1];
 purplem= [163/255 41/255 214/255];
 SPAN= 30;
+weight= [56 88.45 81.64 72.57 117 74.84]*9.81;
 %% Calculate AoA & H2AS
 g= [1 0]; % Ground reference
 for j= 1:6
@@ -374,23 +375,23 @@ for k= 1:3
                 temp= [temp(ind+1:end); temp(1:ind)];
                 temp= temp(round(length(temp)/2):end);% 2nd half of right stance
                 par.ga_pushoff_paretic{j,k}(i,1)= max(data_gc{j,k}{i}.rga(temp));
-                par.force_paretic{j,k}(i,1)= max(data_gc{j,k}{i}.force_right(temp));
+                par.force_paretic{j,k}(i,1)= max(data_gc{j,k}{i}.force_right(temp))/weight(j)*100;
                 temp= find(data_gc{j,k}{i}.lcontact == 1); % left stance
                 temp= temp(round(length(temp)/2):end); % 2nd half of left stance
                 par.ga_pushoff_healthy{j,k}(i,1)= max(data_gc{j,k}{i}.lga(temp));
-                par.force_healthy{j,k}(i,1)= max(data_gc{j,k}{i}.force_left(temp));
+                par.force_healthy{j,k}(i,1)= max(data_gc{j,k}{i}.force_left(temp))/weight(j)*100;
                 par.force_diff{j,k}(i,1)= par.force_healthy{j,k}(i)-par.force_paretic{j,k}(i);
             elseif paretic_side{j} == 'L'
                 temp= find(data_gc{j,k}{i}.rcontact == 1); % right stance
                 temp= temp(round(length(temp)/2):end); % 2nd half of right stance
                 par.ga_pushoff_healthy{j,k}(i,1)= max(data_gc{j,k}{i}.rga(temp));
-                par.force_healthy{j,k}(i,1)= max(data_gc{j,k}{i}.force_right(temp));
+                par.force_healthy{j,k}(i,1)= max(data_gc{j,k}{i}.force_right(temp))/weight(j)*100;
                 temp= find(data_gc{j,k}{i}.lcontact == 1); % left stance
                 [~,ind]= max(diff(temp));
                 temp= [temp(ind+1:end); temp(1:ind)];
                 temp= temp(round(length(temp)/2):end); % 2nd half of left stance
                 par.ga_pushoff_paretic{j,k}(i,1)= max(data_gc{j,k}{i}.lga(temp));
-                par.force_paretic{j,k}(i,1)= max(data_gc{j,k}{i}.force_left(temp));
+                par.force_paretic{j,k}(i,1)= max(data_gc{j,k}{i}.force_left(temp))/weight(j)*100;
                 par.force_diff{j,k}(i,1)= par.force_healthy{j,k}(i)-par.force_paretic{j,k}(i);
             end
         end
@@ -1375,10 +1376,10 @@ elseif signif(2) == 1
 end
 
 saveas(gcf,'Fig_StanceSymmetry.png')
-%% Push-off Symmetry
-plot_title= 'Push-Off (Vertical) GRF Asymmetry';
+%% Push-off Asymmetry
+plot_title= 'Vertical Push-Off GRF Asymmetry';
 data_input= par.force_diff;
-plot_ylabel= 'Force (N)';
+plot_ylabel= '% Body Weight';
 
 poi= data_input;
 for j= 1:6
@@ -2260,10 +2261,10 @@ end
 saveas(gcf,'Fig_MuscleActivity.png')
 %% Push Off Force Average - Box & Whisker
 % Step Length
-plot_title= 'Push-Off (Vertical) GRF';
+plot_title= 'Vertical Push-Off GRF';
 healthy_data_input= par.force_healthy;
 paretic_data_input= par.force_paretic;
-plot_ylabel= 'Force (N)';
+plot_ylabel= '% Body Weight';
 
 h_poi= healthy_data_input;
 for j= 1:6
